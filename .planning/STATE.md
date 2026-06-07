@@ -20,7 +20,7 @@ progress:
 **Project:** Data Structure Visualizer
 **Started:** 2026-06-07
 **Current phase:** Phase 01 (Data Structure Implementations)
-**Current plan:** 05 (completed)
+**Current plan:** 06 (completed)
 
 ## Project Reference
 
@@ -38,6 +38,7 @@ See: .planning/PROJECT.md (updated 2026-06-07 after initial definition)
 | 03 | Completed | Tree visualization with d3-hierarchy layout |
 | 04 | Completed | Code panel component with syntax highlighting |
 | 05 | Completed | Play/pause/step controls and execution speed control |
+| 06 | Completed | UI layout and polish |
 
 ## Completed Plans
 
@@ -46,10 +47,11 @@ See: .planning/PROJECT.md (updated 2026-06-07 after initial definition)
 - **Plan 03:** Tree Visualization - SVG rendering with d3-hierarchy and framer-motion
 - **Plan 04:** Code Panel - Syntax highlighting component with line highlighting
 - **Plan 05:** Execution Controls - Play/pause/step/reset buttons and speed control
+- **Plan 06:** UI Layout and Polish - Two-panel layout with component wiring
 
 ## Last Session
 
 **Ended:** 2026-06-07
-**Plan:** 05
+**Plan:** 06
 **Stopped at:** Completed
-**Summary:** .planning/phases/phase-01/01-05-SUMMARY.md
+**Summary:** .planning/phases/phase-01/01-06-SUMMARY.md

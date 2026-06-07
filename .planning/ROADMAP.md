@@ -13,7 +13,7 @@
 | 1.3 | Tree visualization component (nodes, edges, real-time updates) | Completed |
 | 1.4 | Code panel with syntax highlighting and line-by-line execution | Completed |
 | 1.5 | Play/pause/step controls and execution speed control | Completed |
-| 1.6 | UI layout and polish | Pending |
+| 1.6 | UI layout and polish | Completed |
 
 **Phase1 Success Criteria:**
 - User can insert, delete, search, and traverse a BST
