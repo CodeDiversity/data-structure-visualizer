@@ -1,1 +1,144 @@
-/* Styles will be added in plan 1.6 */
+/* Desktop layout for Data Structure Visualizer */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #1a1a2e;
+  color: #eee;
+}
+
+/* Header */
+.app-header {
+  padding: 16px 24px;
+  background-color: #16213e;
+  border-bottom: 1px solid #0f3460;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #e94560;
+  margin: 0;
+}
+
+/* Operation status display */
+.operation-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #0f3460;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.status-label {
+  color: #888;
+  font-weight: 500;
+}
+
+.status-description {
+  color: #fff;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Main two-column layout */
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 60% 40%;
+  min-width: 1024px;
+  gap: 0;
+}
+
+/* Panel base styles */
+.panel {
+  padding: 20px;
+  overflow: auto;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #aaa;
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Left panel - Tree Visualization */
+.tree-panel {
+  background-color: #fafafa;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-panel .panel-title {
+  color: #333;
+}
+
+.tree-visualization {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tree-visualization-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #888;
+  font-size: 16px;
+}
+
+/* Right panel - Code, Controls, Input stacked */
+.right-panel {
+  background-color: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.code-section {
+  flex-shrink: 0;
+}
+
+.controls-section {
+  flex-shrink: 0;
+}
+
+.input-section {
+  flex-shrink: 0;
+}
+
+/* Responsive considerations for smaller screens */
+@media (max-width: 1200px) {
+  .app-main {
+    min-width: unset;
+    grid-template-columns: 55% 45%;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .tree-panel {
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    min-height: 350px;
+  }
+
+  .right-panel {
+    padding: 16px;
+  }
+}
