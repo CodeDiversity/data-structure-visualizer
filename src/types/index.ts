@@ -213,7 +213,10 @@ export interface Step {
   activeEntryIndex?: number | null;
   foundBucketIndex?: number | null;
   foundEntryIndex?: number | null;
+  phase?: OperationPhase;
 }
+
+export type OperationPhase = 'comparing' | 'swapping' | 'completing' | 'current';
 
 export type StructureKind =
   | 'array'
