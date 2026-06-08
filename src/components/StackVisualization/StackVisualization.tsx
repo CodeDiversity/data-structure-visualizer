@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { StackData } from '../../types';
+import { StackData, Step } from '../../types';
 
 interface StackVisualizationProps {
   data: StackData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const emptyStyle: CSSProperties = {
@@ -10,11 +16,11 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
-export default function StackVisualization({ data }: StackVisualizationProps) {
+export default function StackVisualization({ data, step }: StackVisualizationProps) {
   if (data.values.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -25,6 +31,7 @@ export default function StackVisualization({ data }: StackVisualizationProps) {
 
   return (
     <div
+      className={`spring-transition ${getPhaseClass(step?.phase)}`}
       style={{
         flex: 1,
         display: 'flex',
@@ -46,14 +53,14 @@ export default function StackVisualization({ data }: StackVisualizationProps) {
                 width: '160px',
                 padding: '16px 20px',
                 borderRadius: '14px',
-                border: `3px solid ${isFound ? '#16a34a' : isActive ? '#f59e0b' : '#cbd5e1'}`,
-                background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : '#ffffff',
-                color: '#0f172a',
-                boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+                border: `3px solid ${isFound ? 'var(--highlight-green)' : isActive ? 'var(--highlight-yellow)' : 'var(--border)'}`,
+                background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : 'var(--bg-panel)',
+                color: 'var(--text-primary)',
+                boxShadow: 'var(--shadow)',
                 position: 'relative',
               }}
             >
-              <div style={{ fontSize: '13px', color: '#64748b' }}>index {index}</div>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>index {index}</div>
               <div style={{ fontSize: '28px', fontWeight: 700 }}>{value}</div>
               {isTop && (
                 <div
@@ -64,8 +71,8 @@ export default function StackVisualization({ data }: StackVisualizationProps) {
                     transform: 'translateY(-50%)',
                     padding: '6px 10px',
                     borderRadius: '999px',
-                    background: '#2563eb',
-                    color: '#fff',
+                    background: 'var(--accent)',
+                    color: 'var(--bg-panel)',
                     fontSize: '12px',
                     fontWeight: 700,
                   }}
