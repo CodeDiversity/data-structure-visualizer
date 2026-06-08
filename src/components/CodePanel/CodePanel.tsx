@@ -46,7 +46,7 @@ export default function CodePanel({
   return (
     <div
       style={{
-        backgroundColor: isDark ? '#1e1e1e' : '#f8f8f8',
+        backgroundColor: isDark ? '#1e1e1e' : '#282c34',
         padding: '16px',
         borderRadius: '8px',
         fontFamily: 'Consolas, Monaco, "Courier New", monospace',
@@ -58,7 +58,40 @@ export default function CodePanel({
     >
       <SyntaxHighlighter
         language={language}
-        style={isDark ? vscDarkPlus : vs}
+        style={isDark ? vscDarkPlus : {
+  'code[class*="language-"]': { color: '#1a1a1a', background: 'none' },
+  'pre[class*="language-"]': { color: '#1a1a1a', background: '#f5f5f5' },
+  'comment': { color: '#708090' },
+  'prolog': { color: '#708090' },
+  'doctype': { color: '#708090' },
+  'cdata': { color: '#708090' },
+  'punctuation': { color: '#333' },
+  'property': { color: '#905' },
+  'tag': { color: '#905' },
+  'boolean': { color: '#905' },
+  'number': { color: '#07a' },
+  'constant': { color: '#905' },
+  'symbol': { color: '#905' },
+  'deleted': { color: '#905' },
+  'selector': { color: '#690' },
+  'attr-name': { color: '#690' },
+  'string': { color: '#07a' },
+  'char': { color: '#07a' },
+  'builtin': { color: '#07a' },
+  'inserted': { color: '#07a' },
+  'operator': { color: '#333' },
+  'entity': { color: '#900' },
+  'url': { color: '#07a' },
+  'variable': { color: '#036' },
+  'atrule': { color: '#07a' },
+  'attr-value': { color: '#07a' },
+  'function': { color: '#00f' },
+  'keyword': { color: '#07a' },
+  'regex': { color: '#e90' },
+  'important': { color: '#e90', fontWeight: 'bold' },
+  'bold': { fontWeight: 'bold' },
+  'italic': { fontStyle: 'italic' },
+}}
         showLineNumbers
         wrapLines
         lineProps={(lineNumber) =>

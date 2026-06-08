@@ -78,6 +78,7 @@ import {
   hashTableTraverseGenerator,
 } from '../../algorithms/hash-table/generators';
 import { useExecutionContext } from '../../state/ExecutionContext';
+import { useTheme } from '../../state/ThemeContext';
 import {
   DoublyLinkedListNode,
   GraphData,
@@ -87,15 +88,6 @@ import {
   StructureKind,
   TreeNode,
 } from '../../types';
-
-const containerStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-  padding: '16px',
-  background: '#2a2a2a',
-  borderRadius: '8px',
-};
 
 const baseButtonStyle: CSSProperties = {
   flex: 1,
@@ -190,6 +182,29 @@ interface OperationInputProps {
 }
 
 export default function OperationInput({ structure }: OperationInputProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const containerStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    padding: '16px',
+    background: isDark ? '#2a2a2a' : 'var(--bg-panel)',
+    borderRadius: '8px',
+    border: `1px solid ${isDark ? 'var(--border)' : 'var(--border)'}`,
+  };
+
+  const inputStyle: CSSProperties = {
+    flex: 1,
+    padding: '8px 12px',
+    border: `1px solid ${isDark ? '#555' : 'var(--border)'}`,
+    borderRadius: '4px',
+    background: isDark ? '#1e1e1e' : 'var(--bg-panel)',
+    color: isDark ? '#fff' : 'var(--text-primary)',
+    fontSize: '14px',
+  };
+
   const {
     state,
     execute,
@@ -2204,13 +2219,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
           placeholder={inputPlaceholder}
           disabled={isBusy}
           style={{
-            flex: 1,
-            padding: '8px 12px',
-            border: '1px solid #555',
-            borderRadius: '4px',
-            background: '#1e1e1e',
-            color: '#fff',
-            fontSize: '14px',
+            ...inputStyle,
             opacity: isBusy ? 0.5 : 1,
           }}
         />
@@ -2234,13 +2243,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
             }
             disabled={isBusy}
             style={{
-              flex: 1,
-              padding: '8px 12px',
-              border: '1px solid #555',
-              borderRadius: '4px',
-              background: '#1e1e1e',
-              color: '#fff',
-              fontSize: '14px',
+              ...inputStyle,
               opacity: isBusy ? 0.5 : 1,
             }}
           />
@@ -2248,7 +2251,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
       </div>
 
         {validationMessage && (
-        <div style={{ fontSize: '12px', color: '#f44336' }}>{validationMessage}</div>
+        <div style={{ fontSize: '12px', color: 'var(--highlight-orange)' }}>{validationMessage}</div>
       )}
 
       {structure === 'recursion' && (
@@ -2269,7 +2272,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
                   ...baseButtonStyle,
                   flex: 'unset',
                   minWidth: 'unset',
-                  background: isActive ? '#7c3aed' : '#374151',
+                  background: isActive ? 'var(--accent)' : (isDark ? '#374151' : 'var(--border)'),
                   opacity: isBusy ? 0.5 : 1,
                   cursor: isBusy ? 'not-allowed' : 'pointer',
                 }}
@@ -2425,97 +2428,97 @@ export default function OperationInput({ structure }: OperationInputProps) {
       </div>
 
       {structure === 'linked-list' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Linked list insertions append to the tail so the node order is easy to follow.
         </div>
       )}
 
       {structure === 'array' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Use comma-separated values to load an array. After that, enter one integer to append, use the second input for `Delete Index`, and use `Search` or `Traverse` to step through the array.
         </div>
       )}
 
       {structure === 'stack' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Use comma-separated values to load a stack, or one integer to push. `Pop` removes the top value, and traversal visits from top to bottom.
         </div>
       )}
 
       {structure === 'queue' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Use comma-separated values to load a queue, or one integer to enqueue. `Dequeue` removes the front value, and traversal visits in FIFO order.
         </div>
       )}
 
       {structure === 'heap' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Use comma-separated values to load a max-heap, or one integer to insert. `Extract Max` removes the root and re-heapifies the tree.
         </div>
       )}
 
       {structure === 'hash-table' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Use comma-separated values to load a hash table, or one integer to insert. Values hash into 5 buckets using modulo and collisions chain within the same bucket.
         </div>
       )}
 
       {structure === 'doubly-linked-list' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Doubly linked lists show both `next` and `prev` pointers so you can see backward links update during insert and delete.
         </div>
       )}
 
       {structure === 'graph' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Graph nodes use unique values. Use both inputs for `Add Edge`; BFS and DFS start from the first input when provided.
         </div>
       )}
 
       {structure === 'two-pointer' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load a sorted array and target, then run `Search` to watch left and right pointers converge on a pair sum.
         </div>
       )}
 
       {structure === 'sliding-window' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load an array and window size, then run `Search` to slide the window and track the maximum sum seen so far.
         </div>
       )}
 
       {structure === 'binary-search' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load a sorted array and target, then run `Search` to watch `low`, `mid`, and `high` squeeze down on the answer.
         </div>
       )}
 
       {structure === 'merge-sort' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load an array, then run `Sort` to watch merge sort split the data into halves and merge it back together in order.
         </div>
       )}
 
       {structure === 'quick-sort' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load an array, then run `Sort` to watch quick sort partition the array around a pivot and recursively sort the partitions.
         </div>
       )}
 
       {structure === 'prefix-sum' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load an array, use `Build Prefix` to precompute cumulative sums, then enter a range like `2,5` in the second input and run `Query Sum`.
         </div>
       )}
 
       {structure === 'kadane' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Load an array, then run `Max Sum` to find the highest-sum contiguous subarray, even when the input includes negative numbers.
         </div>
       )}
 
       {structure === 'recursion' && (
-        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
           Switch between factorial, fibonacci, and sum-to-n. Set an integer `n`, then run the selected example to watch recursive calls stack up and unwind.
         </div>
       )}

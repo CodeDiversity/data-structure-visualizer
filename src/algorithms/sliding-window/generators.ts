@@ -7,8 +7,10 @@ export const SLIDING_WINDOW_LINE_NUMBERS = {
   LOOP_START: 11,
   ADD_RIGHT: 12,
   REMOVE_LEFT: 13,
-  UPDATE_BEST: 15,
-  RETURN_RESULT: 20,
+  UPDATE_BEST_COMPARE: 15,
+  UPDATE_BEST_SUM: 16,
+  UPDATE_BEST_START: 17,
+  RETURN_RESULT: 21,
 };
 
 export function* slidingWindowGenerator(
@@ -148,13 +150,33 @@ export function* slidingWindowGenerator(
     };
 
     if (windowSum > bestSum) {
-      bestSum = windowSum;
-      bestStart = nextStart;
       yield {
-        type: 'found',
-        nodeId: bestStart.toString(),
-        line: SLIDING_WINDOW_LINE_NUMBERS.UPDATE_BEST,
-        description: `New best window sum ${bestSum} from index ${bestStart} to ${right}`,
+        type: 'compare',
+        nodeId: nextStart.toString(),
+        line: SLIDING_WINDOW_LINE_NUMBERS.UPDATE_BEST_COMPARE,
+        description: `Current sum ${windowSum} > best sum ${bestSum}, updating best`,
+        windowStart: nextStart,
+        windowEnd: right,
+        bestStart,
+        bestEnd: bestStart + windowSize - 1,
+        currentSum: windowSum,
+        bestSum,
+        debugVariables: {
+          values,
+          k: windowSize,
+          right,
+          leftToRemove,
+          windowSum,
+          bestSum,
+          bestStart,
+        },
+      };
+      bestSum = windowSum;
+      yield {
+        type: 'move',
+        nodeId: nextStart.toString(),
+        line: SLIDING_WINDOW_LINE_NUMBERS.UPDATE_BEST_SUM,
+        description: `bestSum updated to ${bestSum}`,
         windowStart: nextStart,
         windowEnd: right,
         bestStart,
@@ -165,6 +187,49 @@ export function* slidingWindowGenerator(
           values,
           k: windowSize,
           right,
+          windowSum,
+          bestSum,
+          bestStart,
+        },
+      };
+      bestStart = nextStart;
+      yield {
+        type: 'move',
+        nodeId: bestStart.toString(),
+        line: SLIDING_WINDOW_LINE_NUMBERS.UPDATE_BEST_START,
+        description: `bestStart updated to ${bestStart}`,
+        windowStart: nextStart,
+        windowEnd: right,
+        bestStart,
+        bestEnd: right,
+        currentSum: windowSum,
+        bestSum,
+        debugVariables: {
+          values,
+          k: windowSize,
+          right,
+          windowSum,
+          bestSum,
+          bestStart,
+        },
+      };
+    } else {
+      yield {
+        type: 'compare',
+        nodeId: nextStart.toString(),
+        line: SLIDING_WINDOW_LINE_NUMBERS.UPDATE_BEST_COMPARE,
+        description: `Current sum ${windowSum} <= best sum ${bestSum}, keeping best`,
+        windowStart: nextStart,
+        windowEnd: right,
+        bestStart,
+        bestEnd: bestStart + windowSize - 1,
+        currentSum: windowSum,
+        bestSum,
+        debugVariables: {
+          values,
+          k: windowSize,
+          right,
+          leftToRemove,
           windowSum,
           bestSum,
           bestStart,

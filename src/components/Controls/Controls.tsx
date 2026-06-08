@@ -1,14 +1,6 @@
 import { CSSProperties } from 'react';
 import { useExecutionContext } from '../../state/ExecutionContext';
-
-const containerStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '12px',
-  padding: '16px',
-  background: '#2a2a2a',
-  borderRadius: '8px',
-};
+import { useTheme } from '../../state/ThemeContext';
 
 const buttonRowStyle: CSSProperties = {
   display: 'flex',
@@ -26,23 +18,35 @@ const baseButtonStyle: CSSProperties = {
   color: '#fff',
 };
 
-const speedButtonStyle: CSSProperties = {
+const speedButtonStyle = (isDark: boolean): CSSProperties => ({
   padding: '4px 12px',
-  border: '1px solid #555',
+  border: `1px solid ${isDark ? '#555' : 'var(--border)'}`,
   borderRadius: '4px',
-  background: '#333',
-  color: '#ccc',
+  background: isDark ? '#333' : 'var(--bg-panel)',
+  color: isDark ? '#ccc' : 'var(--text-secondary)',
   cursor: 'pointer',
   fontSize: '12px',
-};
+});
 
 export default function Controls() {
   const { state, pause, resume, step, reset, setSpeed } = useExecutionContext();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const isPlaying = state === 'playing';
   const isPaused = state === 'paused';
   const isIdle = state === 'idle';
   const stepLabel = isPaused ? 'Next' : 'Step';
+
+  const containerStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    padding: '16px',
+    background: isDark ? '#2a2a2a' : 'var(--bg-panel)',
+    borderRadius: '8px',
+    border: `1px solid ${isDark ? 'var(--border)' : 'var(--border)'}`,
+  };
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -55,7 +59,7 @@ export default function Controls() {
   return (
     <div style={containerStyle}>
       <div style={{ textAlign: 'center' }}>
-        <span style={{ fontSize: '14px', color: '#888' }}>
+        <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
           {isIdle && 'Idle'}
           {isPlaying && 'Playing...'}
           {isPaused && 'Paused'}
@@ -69,7 +73,7 @@ export default function Controls() {
           title={isPlaying ? 'Pause' : 'Play'}
           style={{
             ...baseButtonStyle,
-            background: '#4caf50',
+            background: 'var(--highlight-green)',
             opacity: isIdle ? 0.5 : 1,
             cursor: isIdle ? 'not-allowed' : 'pointer',
           }}
@@ -83,7 +87,7 @@ export default function Controls() {
           title={stepLabel}
           style={{
             ...baseButtonStyle,
-            background: '#2196f3',
+            background: 'var(--accent)',
             opacity: isPlaying ? 0.5 : 1,
             cursor: isPlaying ? 'not-allowed' : 'pointer',
           }}
@@ -96,7 +100,7 @@ export default function Controls() {
           title="Reset"
           style={{
             ...baseButtonStyle,
-            background: '#f44336',
+            background: 'var(--highlight-orange)',
           }}
         >
           Reset
@@ -111,14 +115,14 @@ export default function Controls() {
           gap: '8px',
         }}
       >
-        <span style={{ fontSize: '12px', color: '#888' }}>Speed:</span>
-        <button onClick={() => setSpeed(1000)} title="Slow (1000ms)" style={speedButtonStyle}>
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Speed:</span>
+        <button onClick={() => setSpeed(1000)} title="Slow (1000ms)" style={speedButtonStyle(isDark)}>
           Slow
         </button>
-        <button onClick={() => setSpeed(500)} title="Medium (500ms)" style={speedButtonStyle}>
+        <button onClick={() => setSpeed(500)} title="Medium (500ms)" style={speedButtonStyle(isDark)}>
           Medium
         </button>
-        <button onClick={() => setSpeed(200)} title="Fast (200ms)" style={speedButtonStyle}>
+        <button onClick={() => setSpeed(200)} title="Fast (200ms)" style={speedButtonStyle(isDark)}>
           Fast
         </button>
       </div>
