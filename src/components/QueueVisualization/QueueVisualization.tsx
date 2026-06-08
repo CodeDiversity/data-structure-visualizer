@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { QueueData } from '../../types';
+import { QueueData, Step } from '../../types';
 
 interface QueueVisualizationProps {
   data: QueueData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const emptyStyle: CSSProperties = {
@@ -10,11 +16,11 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
-export default function QueueVisualization({ data }: QueueVisualizationProps) {
+export default function QueueVisualization({ data, step }: QueueVisualizationProps) {
   if (data.values.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -24,12 +30,15 @@ export default function QueueVisualization({ data }: QueueVisualizationProps) {
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '24px' }}>
+    <div
+      className={`spring-transition ${getPhaseClass(step?.phase)}`}
+      style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '24px' }}
+    >
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          color: '#334155',
+          color: 'var(--text-primary)',
           fontSize: '15px',
           fontWeight: 600,
         }}
@@ -55,8 +64,8 @@ export default function QueueVisualization({ data }: QueueVisualizationProps) {
                     transform: 'translateX(-50%)',
                     padding: '4px 8px',
                     borderRadius: '999px',
-                    background: '#0ea5e9',
-                    color: '#fff',
+                    background: 'var(--accent)',
+                    color: 'var(--bg-panel)',
                     fontSize: '11px',
                     fontWeight: 700,
                   }}
@@ -73,8 +82,8 @@ export default function QueueVisualization({ data }: QueueVisualizationProps) {
                     transform: 'translateX(-50%)',
                     padding: '4px 8px',
                     borderRadius: '999px',
-                    background: '#f97316',
-                    color: '#fff',
+                    background: 'var(--highlight-orange)',
+                    color: 'var(--bg-panel)',
                     fontSize: '11px',
                     fontWeight: 700,
                   }}
@@ -86,17 +95,17 @@ export default function QueueVisualization({ data }: QueueVisualizationProps) {
                 style={{
                   height: '76px',
                   borderRadius: '14px',
-                  border: `3px solid ${isFound ? '#16a34a' : isActive ? '#f59e0b' : '#cbd5e1'}`,
-                  background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : '#ffffff',
-                  color: '#0f172a',
+                  border: `3px solid ${isFound ? 'var(--highlight-green)' : isActive ? 'var(--highlight-yellow)' : 'var(--border)'}`,
+                  background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : 'var(--bg-panel)',
+                  color: 'var(--text-primary)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+                  boxShadow: 'var(--shadow)',
                 }}
               >
-                <div style={{ fontSize: '12px', color: '#64748b' }}>{index}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{index}</div>
                 <div style={{ fontSize: '26px', fontWeight: 700 }}>{value}</div>
               </div>
             </div>
