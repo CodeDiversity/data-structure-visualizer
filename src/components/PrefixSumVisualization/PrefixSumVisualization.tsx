@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { PrefixSumData } from '../../types';
+import { PrefixSumData, Step } from '../../types';
 
 interface PrefixSumVisualizationProps {
   data: PrefixSumData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const containerStyle: CSSProperties = {
@@ -18,7 +24,7 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
@@ -29,8 +35,8 @@ function renderCell(
   isActive: boolean,
   isQuery: boolean
 ) {
-  const borderColor = isQuery ? '#16a34a' : isActive ? '#2563eb' : '#cbd5e1';
-  const background = isQuery ? '#dcfce7' : isActive ? '#dbeafe' : '#ffffff';
+  const borderColor = isQuery ? 'var(--highlight-green)' : isActive ? 'var(--accent)' : 'var(--border)';
+  const background = isQuery ? '#dcfce7' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)';
 
   return (
     <div
@@ -40,16 +46,16 @@ function renderCell(
         borderRadius: '14px',
         border: `3px solid ${borderColor}`,
         background,
-        color: '#0f172a',
+        color: 'var(--text-primary)',
         height: '72px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+        boxShadow: 'var(--shadow)',
       }}
     >
-      <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px' }}>
+      <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
         {label}[{index}]
       </div>
       <div style={{ fontSize: '22px', fontWeight: 700 }}>{value}</div>
@@ -57,7 +63,7 @@ function renderCell(
   );
 }
 
-export default function PrefixSumVisualization({ data }: PrefixSumVisualizationProps) {
+export default function PrefixSumVisualization({ data, step }: PrefixSumVisualizationProps) {
   if (data.values.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -67,13 +73,13 @@ export default function PrefixSumVisualization({ data }: PrefixSumVisualizationP
   }
 
   return (
-    <div style={containerStyle}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={containerStyle}>
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          color: '#334155',
+          color: 'var(--text-primary)',
           fontSize: '15px',
           fontWeight: 600,
         }}
@@ -87,7 +93,7 @@ export default function PrefixSumVisualization({ data }: PrefixSumVisualizationP
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <span style={{ color: '#475569', fontSize: '13px', fontWeight: 600 }}>Original Array</span>
+        <span style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600 }}>Original Array</span>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {data.values.map((value, index) =>
             renderCell(
@@ -105,7 +111,7 @@ export default function PrefixSumVisualization({ data }: PrefixSumVisualizationP
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <span style={{ color: '#475569', fontSize: '13px', fontWeight: 600 }}>Prefix Array</span>
+        <span style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 600 }}>Prefix Array</span>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {data.values.map((_, index) =>
             renderCell(
@@ -119,7 +125,7 @@ export default function PrefixSumVisualization({ data }: PrefixSumVisualizationP
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: '13px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)', fontSize: '13px' }}>
         <span>Blue: current build/query focus</span>
         <span>Green: indices contributing to the current answer</span>
         <span>Range Sum: {data.rangeSum ?? 'unset'}</span>
