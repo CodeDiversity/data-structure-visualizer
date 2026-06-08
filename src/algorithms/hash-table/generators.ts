@@ -32,6 +32,23 @@ function cloneBuckets(buckets: number[][]): number[][] {
   return buckets.map((bucket) => [...bucket]);
 }
 
+function buildHashDebug(
+  table: number[][],
+  bucketIndex: number | null,
+  value: number | null,
+  entryIndex: number | null,
+  extra: Record<string, unknown> = {}
+) {
+  return {
+    table,
+    bucketIndex,
+    bucket: bucketIndex === null ? null : table[bucketIndex],
+    value,
+    entryIndex,
+    ...extra,
+  };
+}
+
 export function getBucketIndex(value: number, bucketCount = HASH_TABLE_BUCKET_COUNT) {
   return ((value % bucketCount) + bucketCount) % bucketCount;
 }
@@ -68,6 +85,7 @@ export function* hashTableInsertGenerator(
     bucketSnapshot: cloneBuckets(nextBuckets),
     activeBucketIndex: bucketIndex,
     activeEntryIndex: null,
+    debugVariables: buildHashDebug(nextBuckets, bucketIndex, value, null),
   };
 
   const existingIndex = nextBuckets[bucketIndex].indexOf(value);
@@ -82,6 +100,12 @@ export function* hashTableInsertGenerator(
     bucketSnapshot: cloneBuckets(nextBuckets),
     activeBucketIndex: bucketIndex,
     activeEntryIndex: existingIndex >= 0 ? existingIndex : null,
+    debugVariables: buildHashDebug(
+      nextBuckets,
+      bucketIndex,
+      value,
+      existingIndex >= 0 ? existingIndex : null
+    ),
   };
 
   if (existingIndex < 0) {
@@ -95,6 +119,12 @@ export function* hashTableInsertGenerator(
       bucketSnapshot: cloneBuckets(nextBuckets),
       activeBucketIndex: bucketIndex,
       activeEntryIndex: nextBuckets[bucketIndex].length - 1,
+      debugVariables: buildHashDebug(
+        nextBuckets,
+        bucketIndex,
+        value,
+        nextBuckets[bucketIndex].length - 1
+      ),
     };
   }
 
@@ -106,6 +136,12 @@ export function* hashTableInsertGenerator(
     bucketSnapshot: cloneBuckets(nextBuckets),
     activeBucketIndex: bucketIndex,
     activeEntryIndex: existingIndex >= 0 ? existingIndex : nextBuckets[bucketIndex].length - 1,
+    debugVariables: buildHashDebug(
+      nextBuckets,
+      bucketIndex,
+      value,
+      existingIndex >= 0 ? existingIndex : nextBuckets[bucketIndex].length - 1
+    ),
   };
 
   return nextBuckets;
@@ -126,6 +162,7 @@ export function* hashTableDeleteGenerator(
     bucketSnapshot: cloneBuckets(nextBuckets),
     activeBucketIndex: bucketIndex,
     activeEntryIndex: null,
+    debugVariables: buildHashDebug(nextBuckets, bucketIndex, value, null),
   };
 
   const entryIndex = nextBuckets[bucketIndex].indexOf(value);
@@ -141,6 +178,12 @@ export function* hashTableDeleteGenerator(
     bucketSnapshot: cloneBuckets(nextBuckets),
     activeBucketIndex: bucketIndex,
     activeEntryIndex: entryIndex >= 0 ? entryIndex : null,
+    debugVariables: buildHashDebug(
+      nextBuckets,
+      bucketIndex,
+      value,
+      entryIndex >= 0 ? entryIndex : null
+    ),
   };
 
   if (entryIndex >= 0) {
@@ -154,6 +197,7 @@ export function* hashTableDeleteGenerator(
       bucketSnapshot: cloneBuckets(nextBuckets),
       activeBucketIndex: bucketIndex,
       activeEntryIndex: null,
+      debugVariables: buildHashDebug(nextBuckets, bucketIndex, value, entryIndex),
     };
   }
 
@@ -165,6 +209,7 @@ export function* hashTableDeleteGenerator(
     bucketSnapshot: cloneBuckets(nextBuckets),
     activeBucketIndex: bucketIndex,
     activeEntryIndex: null,
+    debugVariables: buildHashDebug(nextBuckets, bucketIndex, value, null),
   };
 
   return nextBuckets;
@@ -186,6 +231,7 @@ export function* hashTableSearchGenerator(
     activeEntryIndex: null,
     foundBucketIndex: null,
     foundEntryIndex: null,
+    debugVariables: buildHashDebug(buckets, bucketIndex, value, null),
   };
 
   for (let entryIndex = 0; entryIndex < buckets[bucketIndex].length; entryIndex += 1) {
@@ -199,6 +245,7 @@ export function* hashTableSearchGenerator(
       activeEntryIndex: entryIndex,
       foundBucketIndex: null,
       foundEntryIndex: null,
+      debugVariables: buildHashDebug(buckets, bucketIndex, value, entryIndex),
     };
 
     if (buckets[bucketIndex][entryIndex] === value) {
@@ -212,6 +259,7 @@ export function* hashTableSearchGenerator(
         activeEntryIndex: entryIndex,
         foundBucketIndex: bucketIndex,
         foundEntryIndex: entryIndex,
+        debugVariables: buildHashDebug(buckets, bucketIndex, value, entryIndex),
       };
 
       return { found: true };
@@ -228,6 +276,7 @@ export function* hashTableSearchGenerator(
     activeEntryIndex: null,
     foundBucketIndex: null,
     foundEntryIndex: null,
+    debugVariables: buildHashDebug(buckets, bucketIndex, value, null),
   };
 
   return { found: false };
@@ -247,6 +296,7 @@ export function* hashTableTraverseGenerator(
       bucketSnapshot: cloneBuckets(buckets),
       activeBucketIndex: bucketIndex,
       activeEntryIndex: null,
+      debugVariables: buildHashDebug(buckets, bucketIndex, null, null),
     };
 
     for (let entryIndex = 0; entryIndex < buckets[bucketIndex].length; entryIndex += 1) {
@@ -260,6 +310,12 @@ export function* hashTableTraverseGenerator(
         bucketSnapshot: cloneBuckets(buckets),
         activeBucketIndex: bucketIndex,
         activeEntryIndex: entryIndex,
+        debugVariables: buildHashDebug(
+          buckets,
+          bucketIndex,
+          buckets[bucketIndex][entryIndex],
+          entryIndex
+        ),
       };
     }
   }
@@ -272,6 +328,7 @@ export function* hashTableTraverseGenerator(
     bucketSnapshot: cloneBuckets(buckets),
     activeBucketIndex: null,
     activeEntryIndex: null,
+    debugVariables: buildHashDebug(buckets, null, null, null),
   };
 
   return visited;

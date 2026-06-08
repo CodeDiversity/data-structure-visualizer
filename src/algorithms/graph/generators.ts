@@ -42,6 +42,24 @@ function resolveStartNode(graph: GraphData, startValue?: number): GraphNode | un
   return (typeof startValue === 'number' ? findNodeByValue(graph, startValue) : undefined) ?? graph.nodes[0];
 }
 
+function graphQueueValues(queue: GraphNode[]) {
+  return queue.map((node) => node.value);
+}
+
+function graphVisitedValues(graph: GraphData, visited: Set<string>) {
+  return graph.nodes.filter((node) => visited.has(node.id)).map((node) => node.value).sort((a, b) => a - b);
+}
+
+function buildGraphDebug(
+  graph: GraphData,
+  extra: Record<string, unknown> = {}
+) {
+  return {
+    graph,
+    ...extra,
+  };
+}
+
 export function* graphAddNodeGenerator(
   graph: GraphData,
   value: number
@@ -54,6 +72,7 @@ export function* graphAddNodeGenerator(
       nodeId: existingNode.id,
       line: GRAPH_LINE_NUMBERS.ADD_NODE.DUPLICATE_CHECK,
       description: `Node ${value} already exists, skipping insert`,
+      debugVariables: buildGraphDebug(graph, { value, node: existingNode.value }),
     };
     return graph;
   }
@@ -66,6 +85,7 @@ export function* graphAddNodeGenerator(
     nodeId: newNode.id,
     line: GRAPH_LINE_NUMBERS.ADD_NODE.PUSH_NODE,
     description: `Adding node ${value} to the graph`,
+    debugVariables: buildGraphDebug(nextGraph, { value, node: newNode.value }),
   };
 
   yield {
@@ -73,6 +93,7 @@ export function* graphAddNodeGenerator(
     nodeId: newNode.id,
     line: GRAPH_LINE_NUMBERS.ADD_NODE.RETURN_GRAPH,
     description: 'Returning updated graph',
+    debugVariables: buildGraphDebug(nextGraph, { value, node: newNode.value }),
   };
 
   return nextGraph;
@@ -91,6 +112,12 @@ export function* graphAddEdgeGenerator(
     nodeId: sourceNode?.id ?? targetNode?.id ?? null,
     line: GRAPH_LINE_NUMBERS.ADD_EDGE.FIND_NODES,
     description: `Finding nodes ${sourceValue} and ${targetValue}`,
+    debugVariables: buildGraphDebug(graph, {
+      sourceValue,
+      targetValue,
+      source: sourceNode?.value ?? null,
+      target: targetNode?.value ?? null,
+    }),
   };
 
   if (!sourceNode || !targetNode || sourceNode.id === targetNode.id) {
@@ -99,6 +126,12 @@ export function* graphAddEdgeGenerator(
       nodeId: sourceNode?.id ?? targetNode?.id ?? null,
       line: GRAPH_LINE_NUMBERS.ADD_EDGE.VALIDATE,
       description: 'Both different endpoint nodes must exist before an edge can be created',
+      debugVariables: buildGraphDebug(graph, {
+        sourceValue,
+        targetValue,
+        source: sourceNode?.value ?? null,
+        target: targetNode?.value ?? null,
+      }),
     };
     return graph;
   }
@@ -115,6 +148,12 @@ export function* graphAddEdgeGenerator(
       nodeId: sourceNode.id,
       line: GRAPH_LINE_NUMBERS.ADD_EDGE.DUPLICATE_CHECK,
       description: `Edge ${sourceValue}-${targetValue} already exists`,
+      debugVariables: buildGraphDebug(graph, {
+        sourceValue,
+        targetValue,
+        source: sourceNode.value,
+        target: targetNode.value,
+      }),
     };
     return graph;
   }
@@ -126,6 +165,12 @@ export function* graphAddEdgeGenerator(
     nodeId: sourceNode.id,
     line: GRAPH_LINE_NUMBERS.ADD_EDGE.PUSH_EDGE,
     description: `Connecting ${sourceValue} to ${targetValue}`,
+    debugVariables: buildGraphDebug(nextGraph, {
+      sourceValue,
+      targetValue,
+      source: sourceNode.value,
+      target: targetNode.value,
+    }),
   };
 
   yield {
@@ -133,6 +178,12 @@ export function* graphAddEdgeGenerator(
     nodeId: targetNode.id,
     line: GRAPH_LINE_NUMBERS.ADD_EDGE.RETURN_GRAPH,
     description: 'Returning updated graph',
+    debugVariables: buildGraphDebug(nextGraph, {
+      sourceValue,
+      targetValue,
+      source: sourceNode.value,
+      target: targetNode.value,
+    }),
   };
 
   return nextGraph;
@@ -151,6 +202,7 @@ export function* graphSearchGenerator(
       nodeId: null,
       line: GRAPH_LINE_NUMBERS.SEARCH.NOT_FOUND,
       description: 'Graph is empty',
+      debugVariables: buildGraphDebug(graph, { targetValue, startNode: null }),
     };
     return false;
   }
@@ -163,6 +215,12 @@ export function* graphSearchGenerator(
     nodeId: startNode.id,
     line: GRAPH_LINE_NUMBERS.SEARCH.INIT_QUEUE,
     description: `Starting search at node ${startNode.value}`,
+    debugVariables: buildGraphDebug(graph, {
+      targetValue,
+      startNode: startNode.value,
+      queue: graphQueueValues(queue),
+      visited: graphVisitedValues(graph, visited),
+    }),
   };
 
   while (queue.length > 0) {
@@ -173,6 +231,12 @@ export function* graphSearchGenerator(
       nodeId: current.id,
       line: GRAPH_LINE_NUMBERS.SEARCH.LOOP_START,
       description: `Checking node ${current.value}`,
+      debugVariables: buildGraphDebug(graph, {
+        targetValue,
+        current: current.value,
+        queue: graphQueueValues(queue),
+        visited: graphVisitedValues(graph, visited),
+      }),
     };
 
     if (current.value === targetValue) {
@@ -181,6 +245,12 @@ export function* graphSearchGenerator(
         nodeId: current.id,
         line: GRAPH_LINE_NUMBERS.SEARCH.FOUND,
         description: `Found target node ${targetValue}`,
+        debugVariables: buildGraphDebug(graph, {
+          targetValue,
+          current: current.value,
+          queue: graphQueueValues(queue),
+          visited: graphVisitedValues(graph, visited),
+        }),
       };
       return true;
     }
@@ -191,6 +261,13 @@ export function* graphSearchGenerator(
         nodeId: neighbor.id,
         line: GRAPH_LINE_NUMBERS.SEARCH.EXPLORE_NEIGHBOR,
         description: `Exploring neighbor ${neighbor.value}`,
+        debugVariables: buildGraphDebug(graph, {
+          targetValue,
+          current: current.value,
+          neighbor: neighbor.value,
+          queue: graphQueueValues(queue),
+          visited: graphVisitedValues(graph, visited),
+        }),
       };
 
       if (!visited.has(neighbor.id)) {
@@ -201,6 +278,13 @@ export function* graphSearchGenerator(
           nodeId: neighbor.id,
           line: GRAPH_LINE_NUMBERS.SEARCH.ENQUEUE,
           description: `Queueing node ${neighbor.value}`,
+          debugVariables: buildGraphDebug(graph, {
+            targetValue,
+            current: current.value,
+            neighbor: neighbor.value,
+            queue: graphQueueValues(queue),
+            visited: graphVisitedValues(graph, visited),
+          }),
         };
       }
     }
@@ -211,6 +295,11 @@ export function* graphSearchGenerator(
     nodeId: null,
     line: GRAPH_LINE_NUMBERS.SEARCH.NOT_FOUND,
     description: `${targetValue} was not found in the connected component`,
+    debugVariables: buildGraphDebug(graph, {
+      targetValue,
+      queue: graphQueueValues(queue),
+      visited: graphVisitedValues(graph, visited),
+    }),
   };
 
   return false;
@@ -228,6 +317,7 @@ export function* graphBfsGenerator(
       nodeId: null,
       line: GRAPH_LINE_NUMBERS.BFS.RETURN_ORDER,
       description: 'Graph is empty',
+      debugVariables: buildGraphDebug(graph, { startNode: null, order: [] }),
     };
     return [];
   }
@@ -241,6 +331,12 @@ export function* graphBfsGenerator(
     nodeId: startNode.id,
     line: GRAPH_LINE_NUMBERS.BFS.INIT_QUEUE,
     description: `Starting BFS at node ${startNode.value}`,
+    debugVariables: buildGraphDebug(graph, {
+      startNode: startNode.value,
+      queue: graphQueueValues(queue),
+      visited: graphVisitedValues(graph, visited),
+      order,
+    }),
   };
 
   while (queue.length > 0) {
@@ -252,6 +348,12 @@ export function* graphBfsGenerator(
       nodeId: current.id,
       line: GRAPH_LINE_NUMBERS.BFS.VISIT,
       description: `Visiting node ${current.value}`,
+      debugVariables: buildGraphDebug(graph, {
+        current: current.value,
+        queue: graphQueueValues(queue),
+        visited: graphVisitedValues(graph, visited),
+        order,
+      }),
     };
 
     for (const neighbor of getNeighbors(graph, current.id)) {
@@ -260,6 +362,13 @@ export function* graphBfsGenerator(
         nodeId: neighbor.id,
         line: GRAPH_LINE_NUMBERS.BFS.EXPLORE_NEIGHBOR,
         description: `Inspecting neighbor ${neighbor.value}`,
+        debugVariables: buildGraphDebug(graph, {
+          current: current.value,
+          neighbor: neighbor.value,
+          queue: graphQueueValues(queue),
+          visited: graphVisitedValues(graph, visited),
+          order,
+        }),
       };
 
       if (!visited.has(neighbor.id)) {
@@ -270,6 +379,13 @@ export function* graphBfsGenerator(
           nodeId: neighbor.id,
           line: GRAPH_LINE_NUMBERS.BFS.ENQUEUE,
           description: `Queueing node ${neighbor.value}`,
+          debugVariables: buildGraphDebug(graph, {
+            current: current.value,
+            neighbor: neighbor.value,
+            queue: graphQueueValues(queue),
+            visited: graphVisitedValues(graph, visited),
+            order,
+          }),
         };
       }
     }
@@ -280,6 +396,12 @@ export function* graphBfsGenerator(
     nodeId: startNode.id,
     line: GRAPH_LINE_NUMBERS.BFS.RETURN_ORDER,
     description: `BFS order: [${order.join(', ')}]`,
+    debugVariables: buildGraphDebug(graph, {
+      startNode: startNode.value,
+      queue: graphQueueValues(queue),
+      visited: graphVisitedValues(graph, visited),
+      order,
+    }),
   };
 
   return order;
@@ -297,6 +419,7 @@ export function* graphDfsGenerator(
       nodeId: null,
       line: GRAPH_LINE_NUMBERS.DFS.RETURN_ORDER,
       description: 'Graph is empty',
+      debugVariables: buildGraphDebug(graph, { node: null, order: [], visited: [] }),
     };
     return [];
   }
@@ -313,6 +436,11 @@ export function* graphDfsGenerator(
       nodeId: node.id,
       line: GRAPH_LINE_NUMBERS.DFS.VISIT,
       description: `Visiting node ${node.value}`,
+      debugVariables: buildGraphDebug(graph, {
+        node: node.value,
+        visited: graphVisitedValues(graph, visited),
+        order,
+      }),
     };
 
     for (const neighbor of getNeighbors(graph, node.id)) {
@@ -321,6 +449,12 @@ export function* graphDfsGenerator(
         nodeId: neighbor.id,
         line: GRAPH_LINE_NUMBERS.DFS.EXPLORE_NEIGHBOR,
         description: `Inspecting neighbor ${neighbor.value}`,
+        debugVariables: buildGraphDebug(graph, {
+          node: node.value,
+          neighbor: neighbor.value,
+          visited: graphVisitedValues(graph, visited),
+          order,
+        }),
       };
 
       if (!visited.has(neighbor.id)) {
@@ -329,6 +463,12 @@ export function* graphDfsGenerator(
           nodeId: neighbor.id,
           line: GRAPH_LINE_NUMBERS.DFS.RECURSE,
           description: `Recursing into node ${neighbor.value}`,
+          debugVariables: buildGraphDebug(graph, {
+            node: node.value,
+            neighbor: neighbor.value,
+            visited: graphVisitedValues(graph, visited),
+            order,
+          }),
         };
         yield* walk(neighbor);
       }
@@ -342,6 +482,11 @@ export function* graphDfsGenerator(
     nodeId: startNode.id,
     line: GRAPH_LINE_NUMBERS.DFS.RETURN_ORDER,
     description: `DFS order: [${order.join(', ')}]`,
+    debugVariables: buildGraphDebug(graph, {
+      node: startNode.value,
+      visited: graphVisitedValues(graph, visited),
+      order,
+    }),
   };
 
   return order;

@@ -63,6 +63,13 @@ function findMin(node: TreeNode): TreeNode {
   return current;
 }
 
+function buildBstDebug(root: TreeNode | null, extra: Record<string, unknown> = {}) {
+  return {
+    root: root ? root.value : null,
+    ...extra,
+  };
+}
+
 /**
  * Generator for BST insert operation with step-by-step visualization
  */
@@ -75,6 +82,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       nodeId: null,
       line: LINE_NUMBERS.INSERT.BASE_CASE,
       description: `Creating new node with value ${value}`,
+      debugVariables: buildBstDebug(root, { value }),
     };
     const newNode: TreeNode = {
       id: generateNodeId(),
@@ -90,6 +98,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
     nodeId: root.id,
     line: LINE_NUMBERS.INSERT.FUNCTION_START,
     description: `Visiting node with value ${root.value}`,
+    debugVariables: buildBstDebug(root, { value, current: root.value }),
   };
 
   // Line 3: if (value < root.value)
@@ -99,6 +108,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.INSERT.GO_LEFT,
       description: `${value} < ${root.value}, going left`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     const updatedLeft = yield* bstInsertGenerator(root.left, value);
@@ -114,6 +124,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       nodeId: updatedRoot.id,
       line: LINE_NUMBERS.INSERT.RETURN_ROOT,
       description: `Returning node ${updatedRoot.value}`,
+      debugVariables: buildBstDebug(updatedRoot, { value, current: updatedRoot.value }),
     };
 
     return updatedRoot;
@@ -123,6 +134,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.INSERT.GO_RIGHT,
       description: `${value} > ${root.value}, going right`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     const updatedRight = yield* bstInsertGenerator(root.right, value);
@@ -137,6 +149,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       nodeId: updatedRoot.id,
       line: LINE_NUMBERS.INSERT.RETURN_ROOT,
       description: `Returning node ${updatedRoot.value}`,
+      debugVariables: buildBstDebug(updatedRoot, { value, current: updatedRoot.value }),
     };
 
     return updatedRoot;
@@ -146,6 +159,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.INSERT.GO_RIGHT,
       description: `${value} === ${root.value}, duplicate, not inserting`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
   }
 
@@ -155,6 +169,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
     nodeId: root.id,
     line: LINE_NUMBERS.INSERT.RETURN_ROOT,
     description: `Returning node ${root.value}`,
+    debugVariables: buildBstDebug(root, { value, current: root.value }),
   };
 
   return root;
@@ -171,6 +186,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: null,
       line: LINE_NUMBERS.DELETE.BASE_CASE,
       description: `Value ${value} not found in tree`,
+      debugVariables: buildBstDebug(root, { value }),
     };
     return null;
   }
@@ -180,6 +196,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
     nodeId: root.id,
     line: LINE_NUMBERS.DELETE.FUNCTION_START,
     description: `Visiting node with value ${root.value}`,
+    debugVariables: buildBstDebug(root, { value, current: root.value }),
   };
 
   // Line 3: if (value < root.value)
@@ -189,6 +206,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.DELETE.GO_LEFT,
       description: `${value} < ${root.value}, searching left subtree`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     const updatedLeft = yield* bstDeleteGenerator(root.left, value);
@@ -203,6 +221,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: updatedRoot.id,
       line: LINE_NUMBERS.DELETE.RETURN_ROOT,
       description: `Returning node ${updatedRoot.value}`,
+      debugVariables: buildBstDebug(updatedRoot, { value, current: updatedRoot.value }),
     };
 
     return updatedRoot;
@@ -212,6 +231,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.DELETE.GO_RIGHT,
       description: `${value} > ${root.value}, searching right subtree`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     const updatedRight = yield* bstDeleteGenerator(root.right, value);
@@ -226,6 +246,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: updatedRoot.id,
       line: LINE_NUMBERS.DELETE.RETURN_ROOT,
       description: `Returning node ${updatedRoot.value}`,
+      debugVariables: buildBstDebug(updatedRoot, { value, current: updatedRoot.value }),
     };
 
     return updatedRoot;
@@ -236,6 +257,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.DELETE.FOUND_NODE,
       description: `Found node to delete with value ${value}`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     // Case 1: No children (leaf node)
@@ -245,6 +267,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
         nodeId: root.id,
         line: LINE_NUMBERS.DELETE.CASE_1,
         description: `Node ${value} is a leaf, removing it`,
+        debugVariables: buildBstDebug(root, { value, current: root.value }),
       };
       return null;
     }
@@ -256,6 +279,11 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
         nodeId: root.id,
         line: LINE_NUMBERS.DELETE.CASE_2,
         description: `Node ${value} has only right child, replacing with right child`,
+        debugVariables: buildBstDebug(root, {
+          value,
+          current: root.value,
+          child: root.right?.value ?? null,
+        }),
       };
       return root.right;
     }
@@ -265,6 +293,11 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
         nodeId: root.id,
         line: LINE_NUMBERS.DELETE.CASE_2,
         description: `Node ${value} has only left child, replacing with left child`,
+        debugVariables: buildBstDebug(root, {
+          value,
+          current: root.value,
+          child: root.left?.value ?? null,
+        }),
       };
       return root.left;
     }
@@ -275,6 +308,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.DELETE.CASE_3,
       description: `Node ${value} has two children, finding in-order successor`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     const successor = findMin(root.right);
@@ -290,6 +324,11 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       nodeId: updatedRoot.id,
       line: LINE_NUMBERS.DELETE.RETURN_ROOT,
       description: `Replacing ${value} with successor ${successor.value}`,
+      debugVariables: buildBstDebug(updatedRoot, {
+        value,
+        current: updatedRoot.value,
+        successor: successor.value,
+      }),
     };
 
     return updatedRoot;
@@ -301,6 +340,7 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
     nodeId: root!.id,
     line: LINE_NUMBERS.DELETE.RETURN_ROOT,
     description: `Returning node ${root!.value}`,
+    debugVariables: buildBstDebug(root, { value, current: root!.value }),
   };
 
   return root;
@@ -317,6 +357,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
       nodeId: null,
       line: LINE_NUMBERS.SEARCH.BASE_CASE,
       description: `Reached null node, ${value} not found`,
+      debugVariables: buildBstDebug(root, { value }),
     };
     return false;
   }
@@ -326,6 +367,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
     nodeId: root.id,
     line: LINE_NUMBERS.SEARCH.FUNCTION_START,
     description: `Visiting node with value ${root.value}`,
+    debugVariables: buildBstDebug(root, { value, current: root.value }),
   };
 
   // Line 3: if (value === root.value)
@@ -335,6 +377,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.SEARCH.FOUND,
       description: `Found ${value} at node ${root.id}`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
     return true;
   }
@@ -346,6 +389,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.SEARCH.GO_LEFT,
       description: `${value} < ${root.value}, searching left subtree`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     return yield* bstSearchGenerator(root.left, value);
@@ -355,6 +399,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
       nodeId: root.id,
       line: LINE_NUMBERS.SEARCH.GO_RIGHT,
       description: `${value} > ${root.value}, searching right subtree`,
+      debugVariables: buildBstDebug(root, { value, current: root.value }),
     };
 
     return yield* bstSearchGenerator(root.right, value);
@@ -379,6 +424,11 @@ export function* bstInorderGenerator(root: TreeNode | null): Generator<Step, num
       nodeId: node.id,
       line: LINE_NUMBERS.INORDER.TRAVERSE_LEFT,
       description: `Going to left child of ${node.value}`,
+      debugVariables: buildBstDebug(root, {
+        node: node.value,
+        current: node.value,
+        result,
+      }),
     };
 
     yield* traverse(node.left);
@@ -389,6 +439,11 @@ export function* bstInorderGenerator(root: TreeNode | null): Generator<Step, num
       nodeId: node.id,
       line: LINE_NUMBERS.INORDER.VISIT_NODE,
       description: `Visiting node ${node.value}`,
+      debugVariables: buildBstDebug(root, {
+        node: node.value,
+        current: node.value,
+        result,
+      }),
     };
     result.push(node.value);
 
@@ -398,6 +453,11 @@ export function* bstInorderGenerator(root: TreeNode | null): Generator<Step, num
       nodeId: node.id,
       line: LINE_NUMBERS.INORDER.TRAVERSE_RIGHT,
       description: `Going to right child of ${node.value}`,
+      debugVariables: buildBstDebug(root, {
+        node: node.value,
+        current: node.value,
+        result,
+      }),
     };
 
     yield* traverse(node.right);
@@ -419,6 +479,7 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
       nodeId: null,
       line: LINE_NUMBERS.BFS.BASE_CASE,
       description: 'Tree is empty, BFS traversal returns []',
+      debugVariables: buildBstDebug(root, { queue: [], result: [] }),
     };
     return [];
   }
@@ -431,6 +492,11 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
     nodeId: root.id,
     line: LINE_NUMBERS.BFS.INIT_QUEUE,
     description: `Starting BFS with root ${root.value}`,
+    debugVariables: buildBstDebug(root, {
+      queue: queue.map((node) => node.value),
+      result,
+      current: root.value,
+    }),
   };
 
   while (queue.length > 0) {
@@ -441,6 +507,11 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
       nodeId: current.id,
       line: LINE_NUMBERS.BFS.LOOP_START,
       description: `Dequeued ${current.value}`,
+      debugVariables: buildBstDebug(root, {
+        queue: queue.map((node) => node.value),
+        result,
+        current: current.value,
+      }),
     };
 
     yield {
@@ -448,6 +519,11 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
       nodeId: current.id,
       line: LINE_NUMBERS.BFS.VISIT_NODE,
       description: `Visiting ${current.value}`,
+      debugVariables: buildBstDebug(root, {
+        queue: queue.map((node) => node.value),
+        result,
+        current: current.value,
+      }),
     };
     result.push(current.value);
 
@@ -457,6 +533,12 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
         nodeId: current.left.id,
         line: LINE_NUMBERS.BFS.ENQUEUE_LEFT,
         description: `Enqueue left child ${current.left.value}`,
+        debugVariables: buildBstDebug(root, {
+          queue: queue.map((node) => node.value),
+          result,
+          current: current.value,
+          child: current.left.value,
+        }),
       };
       queue.push(current.left);
     }
@@ -467,6 +549,12 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
         nodeId: current.right.id,
         line: LINE_NUMBERS.BFS.ENQUEUE_RIGHT,
         description: `Enqueue right child ${current.right.value}`,
+        debugVariables: buildBstDebug(root, {
+          queue: queue.map((node) => node.value),
+          result,
+          current: current.value,
+          child: current.right.value,
+        }),
       };
       queue.push(current.right);
     }
@@ -477,6 +565,10 @@ export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[
     nodeId: null,
     line: LINE_NUMBERS.BFS.RETURN_RESULT,
     description: `BFS traversal complete: [${result.join(', ')}]`,
+    debugVariables: buildBstDebug(root, {
+      queue: queue.map((node) => node.value),
+      result,
+    }),
   };
 
   return result;

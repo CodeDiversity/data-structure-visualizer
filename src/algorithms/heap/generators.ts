@@ -34,6 +34,14 @@ function swap(values: number[], first: number, second: number) {
   values[second] = temp;
 }
 
+function buildHeapDebug(values: number[], extra: Record<string, unknown> = {}) {
+  return {
+    heap: values,
+    nextHeap: values,
+    ...extra,
+  };
+}
+
 export function* heapInsertGenerator(
   values: number[],
   value: number
@@ -47,6 +55,7 @@ export function* heapInsertGenerator(
     description: 'Copy the current heap array',
     activeIndices: [],
     valuesSnapshot: [...nextValues],
+    debugVariables: buildHeapDebug(nextValues, { value }),
   };
 
   nextValues.push(value);
@@ -59,6 +68,7 @@ export function* heapInsertGenerator(
     description: `Insert ${value} at the end of the heap`,
     activeIndices: [currentIndex],
     valuesSnapshot: [...nextValues],
+    debugVariables: buildHeapDebug(nextValues, { value, index: currentIndex }),
   };
 
   while (currentIndex > 0) {
@@ -71,6 +81,11 @@ export function* heapInsertGenerator(
       description: `Compare child ${nextValues[currentIndex]} with parent ${nextValues[parentIndex]}`,
       activeIndices: [parentIndex, currentIndex],
       valuesSnapshot: [...nextValues],
+      debugVariables: buildHeapDebug(nextValues, {
+        value,
+        index: currentIndex,
+        parent: parentIndex,
+      }),
     };
 
     if (nextValues[parentIndex] >= nextValues[currentIndex]) {
@@ -86,6 +101,11 @@ export function* heapInsertGenerator(
       description: `Swap to restore max-heap order`,
       activeIndices: [parentIndex, currentIndex],
       valuesSnapshot: [...nextValues],
+      debugVariables: buildHeapDebug(nextValues, {
+        value,
+        index: currentIndex,
+        parent: parentIndex,
+      }),
     };
 
     currentIndex = parentIndex;
@@ -98,6 +118,10 @@ export function* heapInsertGenerator(
     description: 'Return the updated heap',
     activeIndices: [currentIndex],
     valuesSnapshot: [...nextValues],
+    debugVariables: buildHeapDebug(nextValues, {
+      value,
+      index: currentIndex,
+    }),
   };
 
   return nextValues;
@@ -113,6 +137,7 @@ export function* heapExtractMaxGenerator(values: number[]): Generator<Step, numb
     description: 'Inspect the heap root',
     activeIndices: nextValues.length > 0 ? [0] : [],
     valuesSnapshot: [...nextValues],
+    debugVariables: buildHeapDebug(nextValues, { index: 0 }),
   };
 
   if (nextValues.length <= 1) {
@@ -125,6 +150,7 @@ export function* heapExtractMaxGenerator(values: number[]): Generator<Step, numb
       description: 'Heap is now empty after removing the root',
       activeIndices: [],
       valuesSnapshot: [...nextValues],
+      debugVariables: buildHeapDebug(nextValues, {}),
     };
 
     return nextValues;
@@ -140,6 +166,7 @@ export function* heapExtractMaxGenerator(values: number[]): Generator<Step, numb
     description: 'Move the last value to the root',
     activeIndices: [0],
     valuesSnapshot: [...nextValues],
+    debugVariables: buildHeapDebug(nextValues, { index: 0 }),
   };
 
   let currentIndex = 0;
@@ -156,6 +183,12 @@ export function* heapExtractMaxGenerator(values: number[]): Generator<Step, numb
       description: `Compare root candidate with its children`,
       activeIndices: [currentIndex, left, right].filter((index) => index < nextValues.length),
       valuesSnapshot: [...nextValues],
+      debugVariables: buildHeapDebug(nextValues, {
+        index: currentIndex,
+        left,
+        right,
+        largest,
+      }),
     };
 
     if (left < nextValues.length && nextValues[left] > nextValues[largest]) {
@@ -179,6 +212,10 @@ export function* heapExtractMaxGenerator(values: number[]): Generator<Step, numb
       description: 'Swap downward to restore max-heap order',
       activeIndices: [currentIndex, largest],
       valuesSnapshot: [...nextValues],
+      debugVariables: buildHeapDebug(nextValues, {
+        index: currentIndex,
+        largest,
+      }),
     };
 
     currentIndex = largest;
@@ -191,6 +228,7 @@ export function* heapExtractMaxGenerator(values: number[]): Generator<Step, numb
     description: 'Return the updated heap',
     activeIndices: [currentIndex],
     valuesSnapshot: [...nextValues],
+    debugVariables: buildHeapDebug(nextValues, { index: currentIndex }),
   };
 
   return nextValues;
@@ -209,6 +247,7 @@ export function* heapSearchGenerator(
       activeIndices: [index],
       valuesSnapshot: [...values],
       foundIndex: null,
+      debugVariables: buildHeapDebug(values, { target, index }),
     };
 
     yield {
@@ -219,6 +258,7 @@ export function* heapSearchGenerator(
       activeIndices: [index],
       valuesSnapshot: [...values],
       foundIndex: null,
+      debugVariables: buildHeapDebug(values, { target, index }),
     };
 
     if (values[index] === target) {
@@ -230,6 +270,7 @@ export function* heapSearchGenerator(
         activeIndices: [index],
         valuesSnapshot: [...values],
         foundIndex: index,
+        debugVariables: buildHeapDebug(values, { target, index }),
       };
 
       return { foundIndex: index };
@@ -244,6 +285,7 @@ export function* heapSearchGenerator(
     activeIndices: [],
     valuesSnapshot: [...values],
     foundIndex: null,
+    debugVariables: buildHeapDebug(values, { target }),
   };
 
   return { foundIndex: -1 };
@@ -260,6 +302,7 @@ export function* heapTraverseGenerator(values: number[]): Generator<Step, number
       description: `Move to heap index ${index}`,
       activeIndices: [index],
       valuesSnapshot: [...values],
+      debugVariables: buildHeapDebug(values, { index }),
     };
 
     visited.push(values[index]);
@@ -271,6 +314,7 @@ export function* heapTraverseGenerator(values: number[]): Generator<Step, number
       description: `Visit ${values[index]}`,
       activeIndices: [index],
       valuesSnapshot: [...values],
+      debugVariables: buildHeapDebug(values, { index }),
     };
   }
 
@@ -281,6 +325,7 @@ export function* heapTraverseGenerator(values: number[]): Generator<Step, number
     description: 'Heap traversal complete',
     activeIndices: [],
     valuesSnapshot: [...values],
+    debugVariables: buildHeapDebug(values, {}),
   };
 
   return visited;

@@ -325,7 +325,11 @@ function AppContent() {
   const highlightedNodeId = currentStep?.nodeId ?? null;
   const currentVariableValues = useMemo(
     () =>
-      buildVariableValues(activeStructure, currentStep, {
+      buildVariableValues(activeStructure, currentOperation, currentStep, {
+        bstRoot,
+        linkedListHead,
+        doublyLinkedListHead,
+        graphData,
         arrayData,
         stackData,
         queueData,
@@ -342,6 +346,10 @@ function AppContent() {
     [
       activeStructure,
       currentStep,
+      bstRoot,
+      linkedListHead,
+      doublyLinkedListHead,
+      graphData,
       arrayData,
       stackData,
       queueData,
@@ -587,8 +595,13 @@ export default App;
 
 function buildVariableValues(
   structure: StructureKind,
+  operation: AppContentData['currentOperation'],
   step: Step | null,
   data: {
+    bstRoot: AppContentData['bstRoot'];
+    linkedListHead: AppContentData['linkedListHead'];
+    doublyLinkedListHead: AppContentData['doublyLinkedListHead'];
+    graphData: AppContentData['graphData'];
     arrayData: AppContentData['arrayData'];
     stackData: AppContentData['stackData'];
     queueData: AppContentData['queueData'];
@@ -606,52 +619,76 @@ function buildVariableValues(
   const variables: Record<string, string> = {};
 
   if (structure === 'array') {
+    const values = step?.valuesSnapshot ?? data.arrayData.values;
+    const activeIndex = firstNumber(step?.activeIndices);
     assignVariables(variables, {
-      values: step?.valuesSnapshot ?? data.arrayData.values,
-      indexToDelete: firstNumber(step?.activeIndices),
-      target: valueAtFoundIndex(step?.valuesSnapshot ?? data.arrayData.values, step?.foundIndex),
-      index: firstNumber(step?.activeIndices),
-      nextValues: step?.valuesSnapshot ?? data.arrayData.values,
+      values,
+      nextValues: values,
+      value: valueAtIndex(values, activeIndex),
+      target: valueAtFoundIndex(values, step?.foundIndex),
+      index: activeIndex,
+      indexToDelete: activeIndex,
     });
   }
 
   if (structure === 'stack') {
+    const values = step?.valuesSnapshot ?? data.stackData.values;
+    const activeIndex = firstNumber(step?.activeIndices);
     assignVariables(variables, {
-      values: step?.valuesSnapshot ?? data.stackData.values,
-      target: valueAtFoundIndex(step?.valuesSnapshot ?? data.stackData.values, step?.foundIndex),
-      index: firstNumber(step?.activeIndices),
-      nextValues: step?.valuesSnapshot ?? data.stackData.values,
+      values,
+      stack: values,
+      nextStack: values,
+      value: valueAtIndex(values, activeIndex),
+      target: valueAtFoundIndex(values, step?.foundIndex),
+      index: activeIndex,
       topIndex: data.stackData.topIndex,
     });
   }
 
   if (structure === 'queue') {
+    const values = step?.valuesSnapshot ?? data.queueData.values;
+    const activeIndex = firstNumber(step?.activeIndices);
     assignVariables(variables, {
-      values: step?.valuesSnapshot ?? data.queueData.values,
-      target: valueAtFoundIndex(step?.valuesSnapshot ?? data.queueData.values, step?.foundIndex),
-      index: firstNumber(step?.activeIndices),
-      nextValues: step?.valuesSnapshot ?? data.queueData.values,
+      values,
+      queue: values,
+      nextQueue: values,
+      value: valueAtIndex(values, activeIndex),
+      target: valueAtFoundIndex(values, step?.foundIndex),
+      index: activeIndex,
       frontIndex: data.queueData.frontIndex,
       rearIndex: data.queueData.rearIndex,
     });
   }
 
   if (structure === 'heap') {
+    const values = step?.valuesSnapshot ?? data.heapData.values;
+    const activeIndex = firstNumber(step?.activeIndices);
+    const parentIndex =
+      typeof activeIndex === 'number' && activeIndex > 0 ? Math.floor((activeIndex - 1) / 2) : null;
     assignVariables(variables, {
-      values: step?.valuesSnapshot ?? data.heapData.values,
-      target: valueAtFoundIndex(step?.valuesSnapshot ?? data.heapData.values, step?.foundIndex),
-      index: firstNumber(step?.activeIndices),
-      nextValues: step?.valuesSnapshot ?? data.heapData.values,
+      values,
+      heap: values,
+      nextHeap: values,
+      value: valueAtIndex(values, activeIndex),
+      target: valueAtFoundIndex(values, step?.foundIndex),
+      index: activeIndex,
+      parent: parentIndex,
+      left: typeof activeIndex === 'number' ? activeIndex * 2 + 1 : null,
+      right: typeof activeIndex === 'number' ? activeIndex * 2 + 2 : null,
+      largest: activeIndex,
     });
   }
 
   if (structure === 'hash-table') {
+    const buckets = step?.bucketSnapshot ?? data.hashTableData.buckets;
     assignVariables(variables, {
-      buckets: step?.bucketSnapshot ?? data.hashTableData.buckets,
-      value: activeBucketValue(step?.bucketSnapshot ?? data.hashTableData.buckets, step),
+      buckets,
+      table: buckets,
+      bucket: activeBucket(step?.bucketSnapshot ?? data.hashTableData.buckets, step),
+      value: activeBucketValue(buckets, step),
       bucketIndex: step?.activeBucketIndex,
       entryIndex: step?.activeEntryIndex,
-      target: activeBucketValue(step?.bucketSnapshot ?? data.hashTableData.buckets, step),
+      target: activeBucketValue(buckets, step),
     });
   }
 
@@ -663,6 +700,7 @@ function buildVariableValues(
       right: step?.rightIndex,
       leftIndex: step?.leftIndex,
       rightIndex: step?.rightIndex,
+      sum: currentPairSum(data.twoPointerData.values, step?.leftIndex, step?.rightIndex),
     });
   }
 
@@ -670,13 +708,25 @@ function buildVariableValues(
     assignVariables(variables, {
       values: data.slidingWindowData.values,
       windowSize: data.slidingWindowData.windowSize,
+      k: data.slidingWindowData.windowSize,
       windowStart: step?.windowStart,
       windowEnd: step?.windowEnd,
       bestStart: step?.bestStart,
       bestEnd: step?.bestEnd,
       currentSum: step?.currentSum,
       bestSum: step?.bestSum,
+      windowSum: step?.debugVariables?.windowSum ?? step?.currentSum,
+      right: step?.debugVariables?.right,
+      index: step?.debugVariables?.index,
     });
+
+    assignDebugVariable(
+      variables,
+      'windowSum',
+      step?.debugVariables?.windowSum ?? step?.currentSum,
+      'not set yet'
+    );
+    assignDebugVariable(variables, 'bestSum', step?.bestSum, 'not set yet');
   }
 
   if (structure === 'binary-search') {
@@ -690,6 +740,10 @@ function buildVariableValues(
       highIndex: step?.highIndex,
       midIndex: step?.midIndex,
     });
+
+    assignDebugVariable(variables, 'low', step?.lowIndex, 'not set yet');
+    assignDebugVariable(variables, 'high', step?.highIndex, 'not set yet');
+    assignDebugVariable(variables, 'mid', step?.midIndex, 'not set yet');
   }
 
   if (structure === 'merge-sort') {
@@ -699,7 +753,43 @@ function buildVariableValues(
       end: step?.mergeEnd,
       writeIndex: firstNumber(step?.activeIndices),
       nextValues: step?.valuesSnapshot ?? data.mergeSortData.values,
+      mid: step?.debugVariables?.mid,
+      leftIndex: step?.debugVariables?.leftIndex,
+      rightIndex: step?.debugVariables?.rightIndex,
+      left: step?.debugVariables?.left,
+      right: step?.debugVariables?.right,
     });
+
+    assignDebugVariable(variables, 'start', step?.mergeStart, 'not set yet');
+    assignDebugVariable(variables, 'end', step?.mergeEnd, 'not set yet');
+    assignDebugVariable(
+      variables,
+      'mid',
+      typeof step?.debugVariables?.mid === 'number' ? step.debugVariables.mid : null,
+      'not set yet'
+    );
+    assignDebugVariable(
+      variables,
+      'leftIndex',
+      typeof step?.debugVariables?.leftIndex === 'number' ? step.debugVariables.leftIndex : null,
+      'not set yet'
+    );
+    assignDebugVariable(
+      variables,
+      'rightIndex',
+      typeof step?.debugVariables?.rightIndex === 'number' ? step.debugVariables.rightIndex : null,
+      'not set yet'
+    );
+    assignDebugVariable(
+      variables,
+      'writeIndex',
+      typeof step?.debugVariables?.writeIndex === 'number'
+        ? step.debugVariables.writeIndex
+        : firstNumber(step?.activeIndices),
+      'not set yet'
+    );
+    assignDebugVariable(variables, 'left', step?.debugVariables?.left, 'not set yet');
+    assignDebugVariable(variables, 'right', step?.debugVariables?.right, 'not set yet');
   }
 
   if (structure === 'prefix-sum') {
@@ -709,7 +799,7 @@ function buildVariableValues(
       left: step?.queryLeft,
       right: step?.queryRight,
       rangeSum: step?.rangeSum ?? data.prefixSumData.rangeSum,
-      runningSum: step?.rangeSum,
+      runningSum: step?.debugVariables?.runningSum ?? step?.rangeSum,
       index: firstNumber(step?.activeIndices),
     });
   }
@@ -733,6 +823,47 @@ function buildVariableValues(
     });
   }
 
+  if (structure === 'bst') {
+    assignVariables(variables, {
+      root: summarizeTreeNode(data.bstRoot),
+      value: treeNodeValue(data.bstRoot, step?.nodeId ?? null),
+      current: treeNodeValue(data.bstRoot, step?.nodeId ?? null),
+      node: treeNodeValue(data.bstRoot, step?.nodeId ?? null),
+      queue: operation === 'bfs' ? 'see traversal state' : null,
+      result: operation === 'traverse' || operation === 'bfs' ? 'see visualization state' : null,
+    });
+  }
+
+  if (structure === 'linked-list') {
+    assignVariables(variables, {
+      head: summarizeLinkedList(data.linkedListHead),
+      current: linkedListValue(data.linkedListHead, step?.nodeId ?? null),
+      value: linkedListValue(data.linkedListHead, step?.nodeId ?? null),
+      values: linkedListValues(data.linkedListHead),
+    });
+  }
+
+  if (structure === 'doubly-linked-list') {
+    assignVariables(variables, {
+      head: summarizeDoublyLinkedList(data.doublyLinkedListHead),
+      current: doublyLinkedListValue(data.doublyLinkedListHead, step?.nodeId ?? null),
+      value: doublyLinkedListValue(data.doublyLinkedListHead, step?.nodeId ?? null),
+      values: doublyLinkedListValues(data.doublyLinkedListHead),
+    });
+  }
+
+  if (structure === 'graph') {
+    assignVariables(variables, {
+      graph: data.graphData,
+      value: graphNodeValue(data.graphData, step?.nodeId ?? null),
+      node: graphNodeValue(data.graphData, step?.nodeId ?? null),
+      current: graphNodeValue(data.graphData, step?.nodeId ?? null),
+      queue: operation === 'bfs' || operation === 'search' ? 'see traversal state' : null,
+      visited: operation === 'bfs' || operation === 'search' || operation === 'traverse' ? 'see traversal state' : null,
+      order: operation === 'bfs' || operation === 'traverse' ? 'see traversal state' : null,
+    });
+  }
+
   if (step?.debugVariables) {
     assignVariables(variables, step.debugVariables);
   }
@@ -748,6 +879,15 @@ function assignVariables(target: Record<string, string>, values: Record<string, 
 
     target[name] = formatVariableValue(value);
   }
+}
+
+function assignDebugVariable(
+  target: Record<string, string>,
+  name: string,
+  value: unknown,
+  fallback: string
+) {
+  target[name] = value === null || value === undefined ? fallback : formatVariableValue(value);
 }
 
 function formatVariableValue(value: unknown) {
@@ -779,6 +919,117 @@ function activeBucketValue(buckets: number[][], step: Step | null) {
   }
 
   return buckets[step.activeBucketIndex]?.[step.activeEntryIndex] ?? null;
+}
+
+function activeBucket(buckets: number[][], step: Step | null) {
+  if (step?.activeBucketIndex === null || step?.activeBucketIndex === undefined) {
+    return null;
+  }
+
+  return buckets[step.activeBucketIndex] ?? null;
+}
+
+function valueAtIndex(values: number[], index: number | null | undefined) {
+  return index !== null && index !== undefined && index >= 0 && index < values.length
+    ? values[index]
+    : null;
+}
+
+function currentPairSum(values: number[], left: number | null | undefined, right: number | null | undefined) {
+  if (
+    left === null ||
+    left === undefined ||
+    right === null ||
+    right === undefined ||
+    left < 0 ||
+    right < 0 ||
+    left >= values.length ||
+    right >= values.length
+  ) {
+    return null;
+  }
+
+  return values[left] + values[right];
+}
+
+function summarizeTreeNode(root: AppContentData['bstRoot']) {
+  return root ? `{ value: ${root.value} }` : null;
+}
+
+function treeNodeValue(root: AppContentData['bstRoot'], nodeId: string | null) {
+  if (!root || !nodeId) {
+    return null;
+  }
+
+  const stack = [root];
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    if (current.id === nodeId) {
+      return current.value;
+    }
+    if (current.right) stack.push(current.right);
+    if (current.left) stack.push(current.left);
+  }
+
+  return null;
+}
+
+function summarizeLinkedList(head: AppContentData['linkedListHead']) {
+  return head ? linkedListValues(head) : null;
+}
+
+function linkedListValues(head: AppContentData['linkedListHead']) {
+  const values: number[] = [];
+  let current = head;
+  while (current) {
+    values.push(current.value);
+    current = current.next;
+  }
+  return values;
+}
+
+function linkedListValue(head: AppContentData['linkedListHead'], nodeId: string | null) {
+  let current = head;
+  while (current) {
+    if (current.id === nodeId) {
+      return current.value;
+    }
+    current = current.next;
+  }
+  return null;
+}
+
+function summarizeDoublyLinkedList(head: AppContentData['doublyLinkedListHead']) {
+  return head ? doublyLinkedListValues(head) : null;
+}
+
+function doublyLinkedListValues(head: AppContentData['doublyLinkedListHead']) {
+  const values: number[] = [];
+  let current = head;
+  while (current) {
+    values.push(current.value);
+    current = current.next;
+  }
+  return values;
+}
+
+function doublyLinkedListValue(head: AppContentData['doublyLinkedListHead'], nodeId: string | null) {
+  let current = head;
+  while (current) {
+    if (current.id === nodeId) {
+      return current.value;
+    }
+    current = current.next;
+  }
+  return null;
+}
+
+function graphNodeValue(graph: AppContentData['graphData'], nodeId: string | null) {
+  if (!nodeId) {
+    return null;
+  }
+
+  return graph.nodes.find((node) => node.id === nodeId)?.value ?? null;
 }
 
 type AppContentData = ReturnType<typeof useExecutionContext>;
