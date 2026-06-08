@@ -77,6 +77,15 @@ export interface MergeSortData {
   mergeEnd: number | null;
 }
 
+export interface QuickSortData {
+  values: number[];
+  activeIndices: number[];
+  sortedIndices: number[];
+  pivotIndex: number | null;
+  partitionStart: number | null;
+  partitionEnd: number | null;
+}
+
 export interface PrefixSumData {
   values: number[];
   prefixValues: number[];
@@ -217,6 +226,7 @@ export type StructureKind =
   | 'sliding-window'
   | 'binary-search'
   | 'merge-sort'
+  | 'quick-sort'
   | 'prefix-sum'
   | 'kadane'
   | 'recursion';
