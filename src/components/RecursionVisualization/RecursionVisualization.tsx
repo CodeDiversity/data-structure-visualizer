@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { RecursionData } from '../../types';
+import { RecursionData, Step } from '../../types';
 
 interface RecursionVisualizationProps {
   data: RecursionData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const containerStyle: CSSProperties = {
@@ -18,11 +24,11 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
-export default function RecursionVisualization({ data }: RecursionVisualizationProps) {
+export default function RecursionVisualization({ data, step }: RecursionVisualizationProps) {
   const exampleLabel =
     data.example === 'factorial'
       ? 'Factorial'
@@ -41,13 +47,13 @@ export default function RecursionVisualization({ data }: RecursionVisualizationP
   const frames = [...data.frames].reverse();
 
   return (
-    <div style={containerStyle}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={containerStyle}>
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          color: '#334155',
+          color: 'var(--text-primary)',
           fontSize: '15px',
           fontWeight: 600,
         }}
@@ -58,7 +64,7 @@ export default function RecursionVisualization({ data }: RecursionVisualizationP
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {frames.length === 0 ? (
-          <div style={{ color: '#64748b', fontSize: '14px' }}>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
             Run `{exampleLabel}` to populate stack frames.
           </div>
         ) : (
@@ -71,21 +77,21 @@ export default function RecursionVisualization({ data }: RecursionVisualizationP
                 key={frame.id}
                 style={{
                   borderRadius: '14px',
-                  border: `3px solid ${isResolved ? '#16a34a' : isActive ? '#2563eb' : '#cbd5e1'}`,
-                  background: isResolved ? '#dcfce7' : isActive ? '#dbeafe' : '#ffffff',
-                  color: '#0f172a',
+                  border: `3px solid ${isResolved ? 'var(--highlight-green)' : isActive ? 'var(--accent)' : 'var(--border)'}`,
+                  background: isResolved ? '#dcfce7' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)',
+                  color: 'var(--text-primary)',
                   padding: '14px 18px',
                   marginLeft: `${frame.depth * 28}px`,
-                  boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+                  boxShadow: 'var(--shadow)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
                   <span style={{ fontWeight: 700 }}>{frame.label}</span>
-                  <span style={{ fontSize: '12px', color: '#475569', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
                     {frame.status}
                   </span>
                 </div>
-                <div style={{ marginTop: '6px', fontSize: '13px', color: '#475569' }}>
+                <div style={{ marginTop: '6px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                   Depth: {frame.depth} | Result: {frame.result ?? 'pending'}
                 </div>
               </div>
