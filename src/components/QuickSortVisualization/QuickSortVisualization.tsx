@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { QuickSortData } from '../../types';
+import { QuickSortData, Step } from '../../types';
 
 interface QuickSortVisualizationProps {
   data: QuickSortData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const containerStyle: CSSProperties = {
@@ -18,11 +24,11 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
-export default function QuickSortVisualization({ data }: QuickSortVisualizationProps) {
+export default function QuickSortVisualization({ data, step }: QuickSortVisualizationProps) {
   if (data.values.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -37,13 +43,13 @@ export default function QuickSortVisualization({ data }: QuickSortVisualizationP
       : 'Not started';
 
   return (
-    <div style={containerStyle}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={containerStyle}>
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          color: '#334155',
+          color: 'var(--text-primary)',
           fontSize: '15px',
           fontWeight: 600,
         }}
@@ -58,18 +64,18 @@ export default function QuickSortVisualization({ data }: QuickSortVisualizationP
           const isSorted = data.sortedIndices.includes(index);
           const isPivot = data.pivotIndex === index;
 
-          let borderColor = '#cbd5e1';
-          let backgroundColor = '#ffffff';
+          let borderColor = 'var(--border)';
+          let backgroundColor = 'var(--bg-panel)';
 
           if (isSorted) {
-            borderColor = '#16a34a';
+            borderColor = 'var(--highlight-green)';
             backgroundColor = '#dcfce7';
           } else if (isPivot) {
-            borderColor = '#ea580c';
+            borderColor = 'var(--highlight-orange)';
             backgroundColor = '#fff7ed';
           } else if (isActive) {
-            borderColor = '#2563eb';
-            backgroundColor = '#dbeafe';
+            borderColor = 'var(--accent)';
+            backgroundColor = 'var(--highlight-pink)';
           }
 
           return (
@@ -80,16 +86,16 @@ export default function QuickSortVisualization({ data }: QuickSortVisualizationP
                 borderRadius: '14px',
                 border: `3px solid ${borderColor}`,
                 background: backgroundColor,
-                color: '#0f172a',
+                color: 'var(--text-primary)',
                 height: '72px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+                boxShadow: 'var(--shadow)',
               }}
             >
-              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                 {index}
               </div>
               <div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
@@ -98,7 +104,7 @@ export default function QuickSortVisualization({ data }: QuickSortVisualizationP
         })}
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', color: '#475569', fontSize: '13px' }}>
+      <div style={{ display: 'flex', gap: '16px', color: 'var(--text-secondary)', fontSize: '13px' }}>
         <span>Blue: currently compared</span>
         <span>Orange: pivot</span>
         <span>Green: in final sorted position</span>
