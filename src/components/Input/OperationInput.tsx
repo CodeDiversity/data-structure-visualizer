@@ -35,6 +35,7 @@ import { twoPointerGenerator } from '../../algorithms/two-pointer/generators';
 import { slidingWindowGenerator } from '../../algorithms/sliding-window/generators';
 import { binarySearchGenerator } from '../../algorithms/binary-search/generators';
 import { mergeSortGenerator } from '../../algorithms/merge-sort/generators';
+import { quickSortGenerator } from '../../algorithms/quick-sort/generators';
 import {
   buildPrefixSumGenerator,
   prefixSumRangeQueryGenerator,
@@ -209,6 +210,8 @@ export default function OperationInput({ structure }: OperationInputProps) {
     setBinarySearchData,
     mergeSortData,
     setMergeSortData,
+    quickSortData,
+    setQuickSortData,
     prefixSumData,
     setPrefixSumData,
     kadaneData,
@@ -442,6 +445,26 @@ export default function OperationInput({ structure }: OperationInputProps) {
       sortedIndices: [],
       mergeStart: null,
       mergeEnd: null,
+    });
+    setValidationMessage('');
+  };
+
+  const handleLoadQuickSortData = () => {
+    const values = parseArrayInput(inputValue);
+
+    if (values === null) {
+      setValidationMessage('Enter at least two comma-separated integers for the array');
+      return;
+    }
+
+    reset();
+    setQuickSortData({
+      values,
+      activeIndices: [],
+      sortedIndices: [],
+      pivotIndex: null,
+      partitionStart: null,
+      partitionEnd: null,
     });
     setValidationMessage('');
   };
@@ -815,6 +838,11 @@ export default function OperationInput({ structure }: OperationInputProps) {
 
     if (structure === 'merge-sort') {
       handleLoadMergeSortData();
+      return;
+    }
+
+    if (structure === 'quick-sort') {
+      handleLoadQuickSortData();
       return;
     }
 
@@ -1418,6 +1446,40 @@ export default function OperationInput({ structure }: OperationInputProps) {
       return;
     }
 
+    if (structure === 'quick-sort') {
+      if (quickSortData.values.length < 2) {
+        setValidationMessage('Load an array with at least two values before sorting');
+        return;
+      }
+
+      execute(quickSortGenerator(quickSortData.values), (result) => {
+        const values = result as number[];
+        setQuickSortData({
+          values,
+          activeIndices: [],
+          sortedIndices: values.map((_, index) => index),
+          pivotIndex: null,
+          partitionStart: null,
+          partitionEnd: null,
+        });
+      }, {
+        startPaused: true,
+        operation: 'sort',
+        onStep: (step: Step) => {
+          setQuickSortData({
+            values: step.valuesSnapshot ?? quickSortData.values,
+            activeIndices: step.activeIndices ?? [],
+            sortedIndices: step.sortedIndices ?? [],
+            pivotIndex: step.pivotIndex ?? null,
+            partitionStart: step.partitionStart ?? null,
+            partitionEnd: step.partitionEnd ?? null,
+          });
+        },
+      });
+      setValidationMessage('');
+      return;
+    }
+
     if (structure === 'prefix-sum') {
       const range = parseRangeInput(secondaryInputValue);
 
@@ -1869,6 +1931,23 @@ export default function OperationInput({ structure }: OperationInputProps) {
     setValidationMessage('');
   };
 
+  const handleRandomQuickSort = () => {
+    const values = Array.from({ length: 8 }, () => Math.floor(Math.random() * 50) + 1);
+
+    reset();
+    setQuickSortData({
+      values,
+      activeIndices: [],
+      sortedIndices: [],
+      pivotIndex: null,
+      partitionStart: null,
+      partitionEnd: null,
+    });
+    setInputValue(values.join(', '));
+    setSecondaryInputValue('');
+    setValidationMessage('');
+  };
+
   const handleRandomPrefixSum = () => {
     const values = Array.from({ length: 8 }, () => Math.floor(Math.random() * 25) + 1);
     const left = Math.floor(Math.random() * (values.length - 1));
@@ -2022,7 +2101,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
           : recursionData.example === 'sum-to-n'
             ? '8'
             : '5'
-      : structure === 'array' || structure === 'stack' || structure === 'queue' || structure === 'heap' || structure === 'hash-table' || structure === 'two-pointer' || structure === 'sliding-window' || structure === 'binary-search' || structure === 'merge-sort' || structure === 'prefix-sum' || structure === 'kadane'
+      : structure === 'array' || structure === 'stack' || structure === 'queue' || structure === 'heap' || structure === 'hash-table' || structure === 'two-pointer' || structure === 'sliding-window' || structure === 'binary-search' || structure === 'merge-sort' || structure === 'quick-sort' || structure === 'prefix-sum' || structure === 'kadane'
         ? '1, 3, 4, 7, 9, 12'
         : 'Enter value';
 
@@ -2038,6 +2117,8 @@ export default function OperationInput({ structure }: OperationInputProps) {
       : structure === 'hash-table'
         ? 'Load / Insert'
       : structure === 'merge-sort'
+        ? 'Load Array'
+      : structure === 'quick-sort'
         ? 'Load Array'
       : structure === 'prefix-sum'
         ? 'Load Array'
@@ -2055,7 +2136,9 @@ export default function OperationInput({ structure }: OperationInputProps) {
   const searchLabel =
     structure === 'merge-sort'
       ? 'Sort'
-      : structure === 'prefix-sum'
+      : structure === 'quick-sort'
+        ? 'Sort'
+        : structure === 'prefix-sum'
         ? 'Query Sum'
         : structure === 'kadane'
           ? 'Max Sum'
@@ -2095,6 +2178,8 @@ export default function OperationInput({ structure }: OperationInputProps) {
           ? 'Random Binary Search'
         : structure === 'merge-sort'
           ? 'Random Merge Sort'
+        : structure === 'quick-sort'
+          ? 'Random Quick Sort'
         : structure === 'prefix-sum'
           ? 'Random Prefix Sum'
         : structure === 'kadane'
@@ -2110,7 +2195,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
       <div style={{ display: 'flex', gap: '8px' }}>
         <input
           type={
-            structure === 'array' || structure === 'stack' || structure === 'queue' || structure === 'heap' || structure === 'hash-table' || structure === 'two-pointer' || structure === 'sliding-window' || structure === 'binary-search' || structure === 'merge-sort' || structure === 'prefix-sum' || structure === 'kadane'
+            structure === 'array' || structure === 'stack' || structure === 'queue' || structure === 'heap' || structure === 'hash-table' || structure === 'two-pointer' || structure === 'sliding-window' || structure === 'binary-search' || structure === 'merge-sort' || structure === 'quick-sort' || structure === 'prefix-sum' || structure === 'kadane'
               ? 'text'
               : 'number'
           }
@@ -2225,7 +2310,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
           </button>
         )}
 
-        {structure !== 'graph' && structure !== 'two-pointer' && structure !== 'sliding-window' && structure !== 'binary-search' && structure !== 'merge-sort' && structure !== 'prefix-sum' && structure !== 'kadane' && structure !== 'recursion' && (
+        {structure !== 'graph' && structure !== 'two-pointer' && structure !== 'sliding-window' && structure !== 'binary-search' && structure !== 'merge-sort' && structure !== 'quick-sort' && structure !== 'prefix-sum' && structure !== 'kadane' && structure !== 'recursion' && (
           <button
             onClick={handleDelete}
             disabled={isBusy}
@@ -2261,7 +2346,7 @@ export default function OperationInput({ structure }: OperationInputProps) {
           {searchLabel}
         </button>
 
-        {structure !== 'two-pointer' && structure !== 'sliding-window' && structure !== 'binary-search' && structure !== 'merge-sort' && structure !== 'kadane' && structure !== 'recursion' && (
+        {structure !== 'two-pointer' && structure !== 'sliding-window' && structure !== 'binary-search' && structure !== 'merge-sort' && structure !== 'quick-sort' && structure !== 'kadane' && structure !== 'recursion' && (
           <button
             onClick={handleTraverse}
             disabled={isBusy}
@@ -2315,6 +2400,8 @@ export default function OperationInput({ structure }: OperationInputProps) {
                   ? handleRandomBinarySearch
                 : structure === 'merge-sort'
                   ? handleRandomMergeSort
+                : structure === 'quick-sort'
+                  ? handleRandomQuickSort
                 : structure === 'prefix-sum'
                   ? handleRandomPrefixSum
                 : structure === 'kadane'
@@ -2406,6 +2493,12 @@ export default function OperationInput({ structure }: OperationInputProps) {
       {structure === 'merge-sort' && (
         <div style={{ fontSize: '12px', color: '#9ca3af' }}>
           Load an array, then run `Sort` to watch merge sort split the data into halves and merge it back together in order.
+        </div>
+      )}
+
+      {structure === 'quick-sort' && (
+        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+          Load an array, then run `Sort` to watch quick sort partition the array around a pivot and recursively sort the partitions.
         </div>
       )}
 
