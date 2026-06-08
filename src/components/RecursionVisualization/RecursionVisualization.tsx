@@ -78,7 +78,7 @@ export default function RecursionVisualization({ data, step }: RecursionVisualiz
                 style={{
                   borderRadius: '14px',
                   border: `3px solid ${isResolved ? 'var(--highlight-green)' : isActive ? 'var(--accent)' : 'var(--border)'}`,
-                  background: isResolved ? '#dcfce7' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)',
+                  background: isResolved ? 'var(--bg-panel)' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)',
                   color: 'var(--text-primary)',
                   padding: '14px 18px',
                   marginLeft: `${frame.depth * 28}px`,

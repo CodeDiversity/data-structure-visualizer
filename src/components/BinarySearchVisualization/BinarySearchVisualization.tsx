@@ -141,7 +141,7 @@ export default function BinarySearchVisualization({ data, step }: BinarySearchVi
                 style={{
                   borderRadius: '14px',
                   border: `3px solid ${isFound ? 'var(--highlight-green)' : isMid ? 'var(--highlight-pink)' : inRange ? 'var(--highlight-yellow)' : 'var(--border)'}`,
-                  background: isFound ? '#dcfce7' : 'var(--bg-panel)',
+                  background: isFound ? 'var(--bg-panel)' : 'var(--bg-panel)',
                   color: 'var(--text-primary)',
                   height: '72px',
                   display: 'flex',

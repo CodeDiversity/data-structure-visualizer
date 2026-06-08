@@ -69,10 +69,10 @@ export default function QuickSortVisualization({ data, step }: QuickSortVisualiz
 
           if (isSorted) {
             borderColor = 'var(--highlight-green)';
-            backgroundColor = '#dcfce7';
+            backgroundColor = 'var(--bg-panel)';
           } else if (isPivot) {
             borderColor = 'var(--highlight-orange)';
-            backgroundColor = '#fff7ed';
+            backgroundColor = 'var(--bg-panel)';
           } else if (isActive) {
             borderColor = 'var(--accent)';
             backgroundColor = 'var(--highlight-pink)';

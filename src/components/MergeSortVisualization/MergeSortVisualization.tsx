@@ -70,7 +70,7 @@ export default function MergeSortVisualization({ data, step }: MergeSortVisualiz
                 width: '72px',
                 borderRadius: '14px',
                 border: `3px solid ${isSorted ? 'var(--highlight-green)' : isActive ? 'var(--accent)' : 'var(--border)'}`,
-                background: isSorted ? '#dcfce7' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)',
+                background: isSorted ? 'var(--bg-panel)' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)',
                 color: 'var(--text-primary)',
                 height: '72px',
                 display: 'flex',

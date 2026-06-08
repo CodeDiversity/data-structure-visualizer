@@ -116,7 +116,7 @@ export default function KadaneVisualization({ data, step }: KadaneVisualizationP
                 style={{
                   borderRadius: '14px',
                   border: `3px solid ${inBest ? 'var(--highlight-green)' : inCurrent ? 'var(--highlight-yellow)' : 'var(--border)'}`,
-                  background: inBest ? '#dcfce7' : 'var(--bg-panel)',
+                  background: inBest ? 'var(--bg-panel)' : 'var(--bg-panel)',
                   color: 'var(--text-primary)',
                   height: '72px',
                   display: 'flex',

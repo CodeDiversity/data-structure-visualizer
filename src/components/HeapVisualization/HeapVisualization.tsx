@@ -83,7 +83,7 @@ export default function HeapVisualization({ data, step }: HeapVisualizationProps
                 cx={x}
                 cy={y}
                 r="28"
-                fill={isFound ? '#dcfce7' : isActive ? '#fff7ed' : 'var(--bg-panel)'}
+                fill={isFound ? 'var(--bg-panel)' : isActive ? 'var(--bg-panel)' : 'var(--bg-panel)'}
                 stroke={isFound ? 'var(--highlight-green)' : isActive ? 'var(--highlight-yellow)' : 'var(--accent)'}
                 strokeWidth="4"
               />
@@ -110,7 +110,7 @@ export default function HeapVisualization({ data, step }: HeapVisualizationProps
                 width: '72px',
                 borderRadius: '14px',
                 border: `3px solid ${isFound ? 'var(--highlight-green)' : isActive ? 'var(--highlight-yellow)' : 'var(--border)'}`,
-                background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : 'var(--bg-panel)',
+                background: isFound ? 'var(--bg-panel)' : isActive ? 'var(--bg-panel)' : 'var(--bg-panel)',
                 color: 'var(--text-primary)',
                 height: '72px',
                 display: 'flex',

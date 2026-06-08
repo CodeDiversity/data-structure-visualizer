@@ -110,7 +110,7 @@ export default function TwoPointerVisualization({ data, step }: TwoPointerVisual
                 style={{
                   borderRadius: '14px',
                   border: `3px solid ${isMatched ? 'var(--highlight-green)' : isLeft || isRight ? 'var(--highlight-yellow)' : 'var(--border)'}`,
-                  background: isMatched ? '#dcfce7' : 'var(--bg-panel)',
+                  background: isMatched ? 'var(--bg-panel)' : 'var(--bg-panel)',
                   color: 'var(--text-primary)',
                   height: '72px',
                   display: 'flex',

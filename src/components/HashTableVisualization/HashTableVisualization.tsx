@@ -80,7 +80,7 @@ export default function HashTableVisualization({ data, step }: HashTableVisualiz
                           height: '72px',
                           borderRadius: '14px',
                           border: `3px solid ${isFound ? 'var(--highlight-green)' : isActive ? 'var(--highlight-yellow)' : 'var(--border)'}`,
-                          background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : 'var(--bg-panel)',
+                          background: isFound ? 'var(--bg-panel)' : isActive ? 'var(--bg-panel)' : 'var(--bg-panel)',
                           color: 'var(--text-primary)',
                           display: 'flex',
                           flexDirection: 'column',

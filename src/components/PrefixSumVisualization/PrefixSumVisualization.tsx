@@ -36,7 +36,7 @@ function renderCell(
   isQuery: boolean
 ) {
   const borderColor = isQuery ? 'var(--highlight-green)' : isActive ? 'var(--accent)' : 'var(--border)';
-  const background = isQuery ? '#dcfce7' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)';
+  const background = isQuery ? 'var(--bg-panel)' : isActive ? 'var(--highlight-pink)' : 'var(--bg-panel)';
 
   return (
     <div

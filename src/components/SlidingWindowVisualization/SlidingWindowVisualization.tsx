@@ -111,7 +111,7 @@ export default function SlidingWindowVisualization({ data, step }: SlidingWindow
                 style={{
                   borderRadius: '14px',
                   border: `3px solid ${inBest ? 'var(--highlight-green)' : inWindow ? 'var(--highlight-yellow)' : 'var(--border)'}`,
-                  background: inBest ? '#dcfce7' : 'var(--bg-panel)',
+                  background: inBest ? 'var(--bg-panel)' : 'var(--bg-panel)',
                   color: 'var(--text-primary)',
                   height: '72px',
                   display: 'flex',
