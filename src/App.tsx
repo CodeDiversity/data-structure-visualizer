@@ -1,5 +1,6 @@
-import { CSSProperties, useMemo, useState } from 'react';
+import { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { ExecutionProvider, useExecutionContext } from './state/ExecutionContext';
+import { useTheme } from './state/ThemeContext';
 import TreeVisualization from './components/TreeVisualization/TreeVisualization';
 import ArrayVisualization from './components/ArrayVisualization/ArrayVisualization';
 import StackVisualization from './components/StackVisualization/StackVisualization';
@@ -97,14 +98,14 @@ const appContainerStyle: CSSProperties = {
   minHeight: '100vh',
   display: 'flex',
   flexDirection: 'column',
-  backgroundColor: '#1a1a2e',
-  color: '#eee',
+  backgroundColor: 'var(--bg-primary)',
+  color: 'var(--text-primary)',
 };
 
 const appHeaderStyle: CSSProperties = {
   padding: '16px 24px',
-  backgroundColor: '#16213e',
-  borderBottom: '1px solid #0f3460',
+  backgroundColor: 'var(--bg-panel)',
+  borderBottom: '1px solid var(--border)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
@@ -146,9 +147,49 @@ function AppContent() {
     prefixSumData,
     kadaneData,
     recursionData,
+    state,
+    pause,
+    resume,
+    step,
     reset,
   } = useExecutionContext();
+  const { theme, toggleTheme } = useTheme();
   const [activeStructure, setActiveStructure] = useState<StructureKind>('bst');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          if (state === 'playing') pause();
+          else if (state === 'paused') resume();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          if (state !== 'playing') step();
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          // Step backward not implemented — just prevent scroll
+          break;
+        case 'r':
+        case 'R':
+          if (!e.metaKey && !e.ctrlKey) {
+            e.preventDefault();
+            reset();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [state, pause, resume, step, reset]);
 
   const currentCode = useMemo(() => {
     if (activeStructure === 'array') {
@@ -440,6 +481,23 @@ function AppContent() {
               );
             })}
           </div>
+          <button
+            onClick={toggleTheme}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+            style={{
+              padding: '8px 12px',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              background: 'transparent',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              fontSize: '18px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
         </div>
       </header>
 
@@ -447,8 +505,8 @@ function AppContent() {
         <section
           style={{
             ...panelStyle,
-            backgroundColor: '#fafafa',
-            borderRight: '1px solid #ddd',
+            backgroundColor: 'var(--bg-panel)',
+            borderRight: '1px solid var(--border)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -561,7 +619,7 @@ function AppContent() {
         <section
           style={{
             ...panelStyle,
-            backgroundColor: '#1a1a2e',
+            backgroundColor: 'var(--bg-primary)',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px',
