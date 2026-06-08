@@ -427,7 +427,7 @@ function AppContent() {
   return (
     <div style={appContainerStyle}>
       <header style={appHeaderStyle}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#e94560', margin: 0 }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--accent)', margin: 0 }}>
           Data Structure Visualizer
         </h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -437,7 +437,7 @@ function AppContent() {
               gap: '8px',
               padding: '6px',
               borderRadius: '10px',
-              backgroundColor: '#0f3460',
+              backgroundColor: 'var(--bg-code)',
             }}
           >
             {[
@@ -469,8 +469,8 @@ function AppContent() {
                     padding: '8px 12px',
                     border: 'none',
                     borderRadius: '8px',
-                    backgroundColor: isActive ? '#e94560' : 'transparent',
-                    color: '#fff',
+                    backgroundColor: isActive ? 'var(--accent)' : 'transparent',
+                    color: 'var(--text-primary)',
                     fontSize: '13px',
                     fontWeight: 600,
                     cursor: 'pointer',
@@ -515,7 +515,7 @@ function AppContent() {
             style={{
               fontSize: '16px',
               fontWeight: 600,
-              color: '#333',
+              color: 'var(--text-primary)',
               margin: '0 0 16px 0',
               textTransform: 'uppercase',
             }}
@@ -563,14 +563,14 @@ function AppContent() {
                   right: 0,
                   zIndex: 10,
                   padding: '6px 12px',
-                  backgroundColor: '#0f3460',
+                  backgroundColor: 'var(--bg-code)',
                   borderRadius: '6px',
                   fontSize: '13px',
                   maxWidth: '320px',
                 }}
               >
-                <span style={{ color: '#888', fontWeight: 500 }}>Current: </span>
-                <span style={{ color: '#fff', fontFamily: 'Consolas, Monaco, Courier New, monospace' }}>
+                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Current: </span>
+                <span style={{ color: 'var(--text-primary)', fontFamily: 'Consolas, Monaco, Courier New, monospace' }}>
                   {currentStep.description}
                 </span>
               </div>
@@ -631,7 +631,7 @@ function AppContent() {
               style={{
                 fontSize: '16px',
                 fontWeight: 600,
-                color: '#aaa',
+                color: 'var(--text-secondary)',
                 margin: '0 0 16px 0',
                 textTransform: 'uppercase',
               }}
