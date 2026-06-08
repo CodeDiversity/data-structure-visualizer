@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { KadaneData } from '../../types';
+import { KadaneData, Step } from '../../types';
 
 interface KadaneVisualizationProps {
   data: KadaneData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const containerStyle: CSSProperties = {
@@ -18,11 +24,11 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
-export default function KadaneVisualization({ data }: KadaneVisualizationProps) {
+export default function KadaneVisualization({ data, step }: KadaneVisualizationProps) {
   if (data.values.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -32,13 +38,13 @@ export default function KadaneVisualization({ data }: KadaneVisualizationProps) 
   }
 
   return (
-    <div style={containerStyle}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={containerStyle}>
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          color: '#334155',
+          color: 'var(--text-primary)',
           fontSize: '15px',
           fontWeight: 600,
         }}
@@ -51,7 +57,7 @@ export default function KadaneVisualization({ data }: KadaneVisualizationProps) 
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          color: '#475569',
+          color: 'var(--text-secondary)',
           fontSize: '14px',
           fontWeight: 600,
         }}
@@ -96,8 +102,8 @@ export default function KadaneVisualization({ data }: KadaneVisualizationProps) 
                     transform: 'translateX(-50%)',
                     padding: '4px 8px',
                     borderRadius: '999px',
-                    background: '#0ea5e9',
-                    color: '#fff',
+                    background: 'var(--accent)',
+                    color: 'var(--bg-panel)',
                     fontSize: '11px',
                     fontWeight: 700,
                   }}
@@ -109,18 +115,18 @@ export default function KadaneVisualization({ data }: KadaneVisualizationProps) 
               <div
                 style={{
                   borderRadius: '14px',
-                  border: `3px solid ${inBest ? '#16a34a' : inCurrent ? '#f59e0b' : '#cbd5e1'}`,
-                  background: inBest ? '#dcfce7' : '#ffffff',
-                  color: '#0f172a',
+                  border: `3px solid ${inBest ? 'var(--highlight-green)' : inCurrent ? 'var(--highlight-yellow)' : 'var(--border)'}`,
+                  background: inBest ? '#dcfce7' : 'var(--bg-panel)',
+                  color: 'var(--text-primary)',
                   height: '72px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+                  boxShadow: 'var(--shadow)',
                 }}
               >
-                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>{index}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>{index}</div>
                 <div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
               </div>
             </div>
