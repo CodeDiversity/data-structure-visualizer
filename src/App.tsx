@@ -13,6 +13,7 @@ import TwoPointerVisualization from './components/TwoPointerVisualization/TwoPoi
 import SlidingWindowVisualization from './components/SlidingWindowVisualization/SlidingWindowVisualization';
 import BinarySearchVisualization from './components/BinarySearchVisualization/BinarySearchVisualization';
 import MergeSortVisualization from './components/MergeSortVisualization/MergeSortVisualization';
+import QuickSortVisualization from './components/QuickSortVisualization/QuickSortVisualization';
 import PrefixSumVisualization from './components/PrefixSumVisualization/PrefixSumVisualization';
 import KadaneVisualization from './components/KadaneVisualization/KadaneVisualization';
 import RecursionVisualization from './components/RecursionVisualization/RecursionVisualization';
@@ -49,6 +50,7 @@ import { TWO_POINTER_CODE } from './algorithms/two-pointer/code-strings';
 import { SLIDING_WINDOW_CODE } from './algorithms/sliding-window/code-strings';
 import { BINARY_SEARCH_CODE } from './algorithms/binary-search/code-strings';
 import { MERGE_SORT_CODE } from './algorithms/merge-sort/code-strings';
+import { QUICK_SORT_CODE } from './algorithms/quick-sort/code-strings';
 import {
   PREFIX_SUM_BUILD_CODE,
   PREFIX_SUM_QUERY_CODE,
@@ -140,6 +142,7 @@ function AppContent() {
     slidingWindowData,
     binarySearchData,
     mergeSortData,
+    quickSortData,
     prefixSumData,
     kadaneData,
     recursionData,
@@ -285,6 +288,10 @@ function AppContent() {
       return MERGE_SORT_CODE;
     }
 
+    if (activeStructure === 'quick-sort') {
+      return QUICK_SORT_CODE;
+    }
+
     if (activeStructure === 'prefix-sum') {
       return currentOperation === 'search' ? PREFIX_SUM_QUERY_CODE : PREFIX_SUM_BUILD_CODE;
     }
@@ -339,6 +346,7 @@ function AppContent() {
         slidingWindowData,
         binarySearchData,
         mergeSortData,
+        quickSortData,
         prefixSumData,
         kadaneData,
         recursionData,
@@ -359,6 +367,7 @@ function AppContent() {
       slidingWindowData,
       binarySearchData,
       mergeSortData,
+      quickSortData,
       prefixSumData,
       kadaneData,
       recursionData,
@@ -404,6 +413,7 @@ function AppContent() {
               { id: 'sliding-window' as const, label: 'Sliding Window' },
               { id: 'binary-search' as const, label: 'Binary Search' },
               { id: 'merge-sort' as const, label: 'Merge Sort' },
+              { id: 'quick-sort' as const, label: 'Quick Sort' },
               { id: 'prefix-sum' as const, label: 'Prefix Sum' },
               { id: 'kadane' as const, label: 'Kadane' },
               { id: 'recursion' as const, label: 'Recursion' },
@@ -430,24 +440,6 @@ function AppContent() {
               );
             })}
           </div>
-          {currentStep?.description && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                backgroundColor: '#0f3460',
-                borderRadius: '6px',
-                fontSize: '14px',
-              }}
-            >
-              <span style={{ color: '#888', fontWeight: 500 }}>Current:</span>
-              <span style={{ color: '#fff', fontFamily: 'Consolas, Monaco, Courier New, monospace' }}>
-                {currentStep.description}
-              </span>
-            </div>
-          )}
         </div>
       </header>
 
@@ -496,48 +488,74 @@ function AppContent() {
                         ? 'Binary Search Visualization'
                         : activeStructure === 'merge-sort'
                           ? 'Merge Sort Visualization'
-                          : activeStructure === 'prefix-sum'
+                          : activeStructure === 'quick-sort'
+                            ? 'Quick Sort Visualization'
+                            : activeStructure === 'prefix-sum'
                             ? 'Prefix Sum Visualization'
                             : activeStructure === 'kadane'
                               ? "Kadane's Visualization"
                               : 'Recursion Visualization'}
           </h2>
-          {activeStructure === 'array' ? (
-            <ArrayVisualization data={arrayData} />
-          ) : activeStructure === 'stack' ? (
-            <StackVisualization data={stackData} />
-          ) : activeStructure === 'queue' ? (
-            <QueueVisualization data={queueData} />
-          ) : activeStructure === 'heap' ? (
-            <HeapVisualization data={heapData} />
-          ) : activeStructure === 'hash-table' ? (
-            <HashTableVisualization data={hashTableData} />
-          ) : activeStructure === 'bst' ? (
-            <TreeVisualization root={bstRoot} highlightedNodeId={highlightedNodeId} />
-          ) : activeStructure === 'linked-list' ? (
-            <LinkedListVisualization head={linkedListHead} highlightedNodeId={highlightedNodeId} />
-          ) : activeStructure === 'doubly-linked-list' ? (
-            <DoublyLinkedListVisualization
-              head={doublyLinkedListHead}
-              highlightedNodeId={highlightedNodeId}
-            />
-          ) : activeStructure === 'graph' ? (
-            <GraphVisualization graph={graphData} highlightedNodeId={highlightedNodeId} />
-          ) : activeStructure === 'two-pointer' ? (
-            <TwoPointerVisualization data={twoPointerData} />
-          ) : activeStructure === 'sliding-window' ? (
-            <SlidingWindowVisualization data={slidingWindowData} />
-          ) : activeStructure === 'binary-search' ? (
-            <BinarySearchVisualization data={binarySearchData} />
-          ) : activeStructure === 'merge-sort' ? (
-            <MergeSortVisualization data={mergeSortData} />
-          ) : activeStructure === 'prefix-sum' ? (
-            <PrefixSumVisualization data={prefixSumData} />
-          ) : activeStructure === 'kadane' ? (
-            <KadaneVisualization data={kadaneData} />
-          ) : (
-            <RecursionVisualization data={recursionData} />
-          )}
+          <div style={{ position: 'relative', flex: 1 }}>
+            {currentStep?.description && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  zIndex: 10,
+                  padding: '6px 12px',
+                  backgroundColor: '#0f3460',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  maxWidth: '320px',
+                }}
+              >
+                <span style={{ color: '#888', fontWeight: 500 }}>Current: </span>
+                <span style={{ color: '#fff', fontFamily: 'Consolas, Monaco, Courier New, monospace' }}>
+                  {currentStep.description}
+                </span>
+              </div>
+            )}
+            {activeStructure === 'array' ? (
+              <ArrayVisualization data={arrayData} />
+            ) : activeStructure === 'stack' ? (
+              <StackVisualization data={stackData} />
+            ) : activeStructure === 'queue' ? (
+              <QueueVisualization data={queueData} />
+            ) : activeStructure === 'heap' ? (
+              <HeapVisualization data={heapData} />
+            ) : activeStructure === 'hash-table' ? (
+              <HashTableVisualization data={hashTableData} />
+            ) : activeStructure === 'bst' ? (
+              <TreeVisualization root={bstRoot} highlightedNodeId={highlightedNodeId} />
+            ) : activeStructure === 'linked-list' ? (
+              <LinkedListVisualization head={linkedListHead} highlightedNodeId={highlightedNodeId} />
+            ) : activeStructure === 'doubly-linked-list' ? (
+              <DoublyLinkedListVisualization
+                head={doublyLinkedListHead}
+                highlightedNodeId={highlightedNodeId}
+              />
+            ) : activeStructure === 'graph' ? (
+              <GraphVisualization graph={graphData} highlightedNodeId={highlightedNodeId} />
+            ) : activeStructure === 'two-pointer' ? (
+              <TwoPointerVisualization data={twoPointerData} />
+            ) : activeStructure === 'sliding-window' ? (
+              <SlidingWindowVisualization data={slidingWindowData} />
+            ) : activeStructure === 'binary-search' ? (
+              <BinarySearchVisualization data={binarySearchData} />
+            ) : activeStructure === 'merge-sort' ? (
+              <MergeSortVisualization data={mergeSortData} />
+            ) : activeStructure === 'quick-sort' ? (
+              <QuickSortVisualization data={quickSortData} />
+            ) : activeStructure === 'prefix-sum' ? (
+              <PrefixSumVisualization data={prefixSumData} />
+            ) : activeStructure === 'kadane' ? (
+              <KadaneVisualization data={kadaneData} />
+            ) : (
+              <RecursionVisualization data={recursionData} />
+            )}
+          </div>
         </section>
 
         <section
@@ -611,6 +629,7 @@ function buildVariableValues(
     slidingWindowData: AppContentData['slidingWindowData'];
     binarySearchData: AppContentData['binarySearchData'];
     mergeSortData: AppContentData['mergeSortData'];
+    quickSortData: AppContentData['quickSortData'];
     prefixSumData: AppContentData['prefixSumData'];
     kadaneData: AppContentData['kadaneData'];
     recursionData: AppContentData['recursionData'];
@@ -730,20 +749,25 @@ function buildVariableValues(
   }
 
   if (structure === 'binary-search') {
+    const values = data.binarySearchData.values;
+    const midIndex = step?.midIndex;
+    const valuesMid = typeof midIndex === 'number' ? values[midIndex] : null;
+
     assignVariables(variables, {
-      values: data.binarySearchData.values,
+      values,
       target: data.binarySearchData.target,
       low: step?.lowIndex,
       high: step?.highIndex,
-      mid: step?.midIndex,
+      mid: midIndex,
       lowIndex: step?.lowIndex,
       highIndex: step?.highIndex,
-      midIndex: step?.midIndex,
+      midIndex,
+      'values[mid]': valuesMid,
     });
 
     assignDebugVariable(variables, 'low', step?.lowIndex, 'not set yet');
     assignDebugVariable(variables, 'high', step?.highIndex, 'not set yet');
-    assignDebugVariable(variables, 'mid', step?.midIndex, 'not set yet');
+    assignDebugVariable(variables, 'mid', midIndex, 'not set yet');
   }
 
   if (structure === 'merge-sort') {
@@ -790,6 +814,27 @@ function buildVariableValues(
     );
     assignDebugVariable(variables, 'left', step?.debugVariables?.left, 'not set yet');
     assignDebugVariable(variables, 'right', step?.debugVariables?.right, 'not set yet');
+  }
+
+  if (structure === 'quick-sort') {
+    const values = step?.valuesSnapshot ?? data.quickSortData.values;
+    const pivotIndex = step?.pivotIndex;
+    assignVariables(variables, {
+      values,
+      low: step?.partitionStart,
+      high: step?.partitionEnd,
+      pivot: pivotIndex != null ? values[pivotIndex] : null,
+      pivotIndex,
+      i: step?.debugVariables?.i,
+      j: step?.debugVariables?.j,
+      nextValues: values,
+    });
+
+    assignDebugVariable(variables, 'low', step?.partitionStart, 'not set yet');
+    assignDebugVariable(variables, 'high', step?.partitionEnd, 'not set yet');
+    assignDebugVariable(variables, 'pivot', pivotIndex != null ? values[pivotIndex] : null, 'not set yet');
+    assignDebugVariable(variables, 'i', step?.debugVariables?.i, 'not set yet');
+    assignDebugVariable(variables, 'j', step?.debugVariables?.j, 'not set yet');
   }
 
   if (structure === 'prefix-sum') {
