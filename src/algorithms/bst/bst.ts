@@ -149,3 +149,18 @@ export function inorder(root: TreeNode | null): number[] {
   traverse(root);
   return result;
 }
+
+/**
+ * Builds a BST by inserting values in order
+ * @param values - Values to insert into the tree
+ * @returns The constructed BST root
+ */
+export function buildTree(values: number[]): TreeNode | null {
+  let root: TreeNode | null = null;
+
+  for (const value of values) {
+    root = insert(root, value);
+  }
+
+  return root;
+}

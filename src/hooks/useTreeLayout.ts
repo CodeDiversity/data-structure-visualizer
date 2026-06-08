@@ -31,28 +31,57 @@ export function useTreeLayout(
       return { nodes: [], links: [] };
     }
 
-    // Create d3 hierarchy from tree structure
-    const d3Root = hierarchy<TreeNode>(root);
+    console.debug('[BST] Recomputing layout', {
+      rootId: root.id,
+      rootValue: root.value,
+    });
 
-    // Create tree layout with configurable size
+    // Map BST left/right pointers into the child list d3-hierarchy expects.
+    const d3Root = hierarchy<TreeNode>(root, (node) => {
+      const children = [node.left, node.right].filter(
+        (child): child is TreeNode => child !== null
+      );
+      return children.length > 0 ? children : undefined;
+    });
+
+    // Use padded bounds so sibling nodes are not pushed all the way to the edges.
+    const horizontalPadding = 80;
+    const topPadding = 50;
+    const bottomPadding = 30;
+
     const treeLayout = tree<TreeNode>();
-    treeLayout.size([dimensions.width, dimensions.height]);
+    treeLayout.size([
+      dimensions.width - horizontalPadding * 2,
+      dimensions.height - topPadding - bottomPadding,
+    ]);
 
     // Compute the layout
     const layoutRoot = treeLayout(d3Root);
 
     // Extract nodes with x, y coordinates (d3-hierarchy always sets x, y after layout)
+    // Offset y by50px padding so root isn't cut off at top
     const nodes: LayoutNode[] = layoutRoot.descendants().map((node: HierarchyNode<TreeNode>) => ({
-      x: node.x ?? 0,
-      y: node.y ?? 0,
+      x: (node.x ?? 0) + horizontalPadding,
+      y: (node.y ?? 0) + topPadding,
       data: node.data,
     }));
 
     // Extract links between nodes
     const links: LayoutLink[] = layoutRoot.links().map((link: HierarchyLink<TreeNode>) => ({
-      source: { x: link.source.x ?? 0, y: link.source.y ?? 0 },
-      target: { x: link.target.x ?? 0, y: link.target.y ?? 0 },
+      source: {
+        x: (link.source.x ?? 0) + horizontalPadding,
+        y: (link.source.y ?? 0) + topPadding,
+      },
+      target: {
+        x: (link.target.x ?? 0) + horizontalPadding,
+        y: (link.target.y ?? 0) + topPadding,
+      },
     }));
+
+    console.debug('[BST] Layout computed', {
+      nodeCount: nodes.length,
+      linkCount: links.length,
+    });
 
     return { nodes, links };
   }, [root, dimensions.width, dimensions.height]);

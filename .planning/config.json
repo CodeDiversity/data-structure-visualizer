@@ -1,0 +1,18 @@
+{
+  "team": null,
+  "granularity": "medium",
+  "yolo": false,
+  "research": true,
+  "agents": {
+    "researcher": "parallel",
+    "planner": "sequential"
+  },
+  "git": {
+    "autoInit": false,
+    "branch": "main"
+  },
+  "defaults": {
+    "phase_approval": "manual",
+    "plan_approval": "manual"
+  }
+}

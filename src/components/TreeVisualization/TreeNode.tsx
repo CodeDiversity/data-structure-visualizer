@@ -16,7 +16,9 @@ interface TreeNodeProps {
  */
 export default function TreeNode({ node, isHighlighted }: TreeNodeProps) {
   const { x, y, data } = node;
-  const radius = 20;
+  const label = String(data.value);
+  const radius = Math.max(20, Math.min(30, 12 + label.length * 4));
+  const fontSize = label.length >= 4 ? 10 : label.length === 3 ? 11 : 12;
 
   return (
     <motion.g
@@ -52,16 +54,16 @@ export default function TreeNode({ node, isHighlighted }: TreeNodeProps) {
         x={x}
         y={y}
         textAnchor="middle"
-        dominantBaseline="central"
+        dominantBaseline="middle"
         fill="white"
-        fontSize={12}
+        fontSize={fontSize}
         fontWeight="bold"
         style={{
           userSelect: 'none',
           pointerEvents: 'none',
         }}
       >
-        {data.value}
+        {label}
       </text>
     </motion.g>
   );

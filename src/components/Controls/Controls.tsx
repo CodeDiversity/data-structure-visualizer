@@ -1,22 +1,48 @@
+import { CSSProperties } from 'react';
 import { useExecutionContext } from '../../state/ExecutionContext';
 
-/**
- * Controls component for execution control
- * Provides play, pause, step, reset buttons and speed control
- */
+const containerStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '12px',
+  padding: '16px',
+  background: '#2a2a2a',
+  borderRadius: '8px',
+};
+
+const buttonRowStyle: CSSProperties = {
+  display: 'flex',
+  gap: '8px',
+  justifyContent: 'center',
+};
+
+const baseButtonStyle: CSSProperties = {
+  padding: '8px 16px',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: 500,
+  color: '#fff',
+};
+
+const speedButtonStyle: CSSProperties = {
+  padding: '4px 12px',
+  border: '1px solid #555',
+  borderRadius: '4px',
+  background: '#333',
+  color: '#ccc',
+  cursor: 'pointer',
+  fontSize: '12px',
+};
+
 export default function Controls() {
-  const {
-    state,
-    pause,
-    resume,
-    step,
-    reset,
-    setSpeed,
-  } = useExecutionContext();
+  const { state, pause, resume, step, reset, setSpeed } = useExecutionContext();
 
   const isPlaying = state === 'playing';
   const isPaused = state === 'paused';
   const isIdle = state === 'idle';
+  const stepLabel = isPaused ? 'Next' : 'Step';
 
   const handlePlayPause = () => {
     if (isPlaying) {
@@ -26,167 +52,76 @@ export default function Controls() {
     }
   };
 
-  const handleSpeedChange = (ms: number) => {
-    setSpeed(ms);
-  };
-
   return (
-    <div className="controls">
-      <div className="controls-state">
-        <span className="state-label">
+    <div style={containerStyle}>
+      <div style={{ textAlign: 'center' }}>
+        <span style={{ fontSize: '14px', color: '#888' }}>
           {isIdle && 'Idle'}
           {isPlaying && 'Playing...'}
           {isPaused && 'Paused'}
         </span>
       </div>
 
-      <div className="controls-buttons">
+      <div style={buttonRowStyle}>
         <button
-          className="control-btn play-pause-btn"
           onClick={handlePlayPause}
           disabled={isIdle}
           title={isPlaying ? 'Pause' : 'Play'}
+          style={{
+            ...baseButtonStyle,
+            background: '#4caf50',
+            opacity: isIdle ? 0.5 : 1,
+            cursor: isIdle ? 'not-allowed' : 'pointer',
+          }}
         >
           {isPlaying ? 'Pause' : 'Play'}
         </button>
 
         <button
-          className="control-btn step-btn"
           onClick={step}
           disabled={isPlaying}
-          title="Step"
+          title={stepLabel}
+          style={{
+            ...baseButtonStyle,
+            background: '#2196f3',
+            opacity: isPlaying ? 0.5 : 1,
+            cursor: isPlaying ? 'not-allowed' : 'pointer',
+          }}
         >
-          Step
+          {stepLabel}
         </button>
 
         <button
-          className="control-btn reset-btn"
           onClick={reset}
           title="Reset"
+          style={{
+            ...baseButtonStyle,
+            background: '#f44336',
+          }}
         >
           Reset
         </button>
       </div>
 
-      <div className="controls-speed">
-        <span className="speed-label">Speed:</span>
-        <button
-          className="speed-btn"
-          onClick={() => handleSpeedChange(1000)}
-          title="Slow (1000ms)"
-        >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+        }}
+      >
+        <span style={{ fontSize: '12px', color: '#888' }}>Speed:</span>
+        <button onClick={() => setSpeed(1000)} title="Slow (1000ms)" style={speedButtonStyle}>
           Slow
         </button>
-        <button
-          className="speed-btn"
-          onClick={() => handleSpeedChange(500)}
-          title="Medium (500ms)"
-        >
+        <button onClick={() => setSpeed(500)} title="Medium (500ms)" style={speedButtonStyle}>
           Medium
         </button>
-        <button
-          className="speed-btn"
-          onClick={() => handleSpeedChange(200)}
-          title="Fast (200ms)"
-        >
+        <button onClick={() => setSpeed(200)} title="Fast (200ms)" style={speedButtonStyle}>
           Fast
         </button>
       </div>
-
-      <style>{`
-        .controls {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          padding: 16px;
-          background: #2a2a2a;
-          border-radius: 8px;
-        }
-
-        .controls-state {
-          text-align: center;
-        }
-
-        .state-label {
-          font-size: 14px;
-          color: #888;
-        }
-
-        .controls-buttons {
-          display: flex;
-          gap: 8px;
-          justify-content: center;
-        }
-
-        .control-btn {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 500;
-          transition: background-color 0.2s, opacity 0.2s;
-        }
-
-        .control-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .play-pause-btn {
-          background: #4caf50;
-          color: white;
-        }
-
-        .play-pause-btn:hover:not(:disabled) {
-          background: #45a049;
-        }
-
-        .step-btn {
-          background: #2196f3;
-          color: white;
-        }
-
-        .step-btn:hover:not(:disabled) {
-          background: #1976d2;
-        }
-
-        .reset-btn {
-          background: #f44336;
-          color: white;
-        }
-
-        .reset-btn:hover:not(:disabled) {
-          background: #d32f2f;
-        }
-
-        .controls-speed {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-
-        .speed-label {
-          font-size: 12px;
-          color: #888;
-        }
-
-        .speed-btn {
-          padding: 4px 12px;
-          border: 1px solid #555;
-          border-radius: 4px;
-          background: #333;
-          color: #ccc;
-          cursor: pointer;
-          font-size: 12px;
-          transition: background-color 0.2s;
-        }
-
-        .speed-btn:hover {
-          background: #444;
-        }
-      `}</style>
     </div>
   );
 }

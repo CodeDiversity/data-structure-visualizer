@@ -1,13 +1,22 @@
 import { useState, useRef, useCallback } from 'react';
-import { Step } from '../types';
+import { OperationKind, Step } from '../types';
 
 export type ExecutionState = 'idle' | 'playing' | 'paused';
 
 interface UseExecutionEngineReturn {
   state: ExecutionState;
   currentStep: Step | null;
+  currentOperation: OperationKind | null;
   speed: number;
-  execute: (generator: Generator<Step, unknown, undefined>) => void;
+  execute: (
+    generator: Generator<Step, unknown, undefined>,
+    onComplete?: (result: unknown) => void,
+    options?: {
+      startPaused?: boolean;
+      operation?: OperationKind;
+      onStep?: (step: Step) => void;
+    }
+  ) => void;
   pause: () => void;
   resume: () => void;
   step: () => void;
@@ -22,12 +31,15 @@ interface UseExecutionEngineReturn {
 export function useExecutionEngine(): UseExecutionEngineReturn {
   const [state, setState] = useState<ExecutionState>('idle');
   const [currentStep, setCurrentStep] = useState<Step | null>(null);
+  const [currentOperation, setCurrentOperation] = useState<OperationKind | null>(null);
   const [speed, setSpeedState] = useState<number>(500); // Default medium speed
 
   // Use refs to store mutable values needed in closures
   const generatorRef = useRef<Generator<Step, unknown, undefined> | null>(null);
   const timeoutIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRunningRef = useRef<boolean>(false);
+  const onCompleteRef = useRef<((result: unknown) => void) | undefined>(undefined);
+  const onStepRef = useRef<((step: Step) => void) | undefined>(undefined);
 
   /**
    * Internal function to advance to the next step
@@ -43,13 +55,18 @@ export function useExecutionEngine(): UseExecutionEngineReturn {
       // Generator exhausted, return to idle
       setState('idle');
       setCurrentStep(null);
+      setCurrentOperation(null);
       isRunningRef.current = false;
       generatorRef.current = null;
+      onCompleteRef.current?.(result.value);
+      onCompleteRef.current = undefined;
+      onStepRef.current = undefined;
       return;
     }
 
     // Update current step
     setCurrentStep(result.value);
+    onStepRef.current?.(result.value);
 
     // If still playing, schedule next step
     if (isRunningRef.current) {
@@ -60,32 +77,52 @@ export function useExecutionEngine(): UseExecutionEngineReturn {
   /**
    * Start execution with a generator
    */
-  const execute = useCallback((generator: Generator<Step, unknown, undefined>) => {
-    // Clean up any existing execution
+  const execute = useCallback((
+    generator: Generator<Step, unknown, undefined>,
+    onComplete?: (result: unknown) => void,
+    options?: {
+      startPaused?: boolean;
+      operation?: OperationKind;
+      onStep?: (step: Step) => void;
+    }
+  ) => {
+    const startPaused = options?.startPaused ?? false;
+
     if (timeoutIdRef.current) {
       clearTimeout(timeoutIdRef.current);
       timeoutIdRef.current = null;
     }
 
-    // Store generator and start execution
     generatorRef.current = generator;
-    isRunningRef.current = true;
-    setState('playing');
+    onCompleteRef.current = onComplete;
+    onStepRef.current = options?.onStep;
+    setCurrentOperation(options?.operation ?? null);
 
-    // Get first step
     const result = generator.next();
 
     if (result.done) {
       setState('idle');
       setCurrentStep(null);
+      setCurrentOperation(null);
       isRunningRef.current = false;
       generatorRef.current = null;
+      onComplete?.(result.value);
+      onCompleteRef.current = undefined;
+      onStepRef.current = undefined;
       return;
     }
 
     setCurrentStep(result.value);
+    onStepRef.current?.(result.value);
 
-    // Schedule next step
+    if (startPaused) {
+      isRunningRef.current = false;
+      setState('paused');
+      return;
+    }
+
+    isRunningRef.current = true;
+    setState('playing');
     timeoutIdRef.current = setTimeout(nextStep, speed);
   }, [speed, nextStep]);
 
@@ -132,12 +169,17 @@ export function useExecutionEngine(): UseExecutionEngineReturn {
       if (result.done) {
         setState('idle');
         setCurrentStep(null);
+        setCurrentOperation(null);
         isRunningRef.current = false;
         generatorRef.current = null;
+        onCompleteRef.current?.(result.value);
+        onCompleteRef.current = undefined;
+        onStepRef.current = undefined;
         return;
       }
 
       setCurrentStep(result.value);
+      onStepRef.current?.(result.value);
     }
   }, [state]);
 
@@ -154,6 +196,9 @@ export function useExecutionEngine(): UseExecutionEngineReturn {
     isRunningRef.current = false;
     setState('idle');
     setCurrentStep(null);
+    setCurrentOperation(null);
+    onCompleteRef.current = undefined;
+    onStepRef.current = undefined;
   }, []);
 
   /**
@@ -166,6 +211,7 @@ export function useExecutionEngine(): UseExecutionEngineReturn {
   return {
     state,
     currentStep,
+    currentOperation,
     speed,
     execute,
     pause,

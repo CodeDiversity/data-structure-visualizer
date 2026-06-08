@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import { useTreeLayout } from '../../hooks/useTreeLayout';
 import { TreeNode as TreeNodeType } from '../../types';
 import TreeNode from './TreeNode';
@@ -12,11 +12,22 @@ interface TreeVisualizationProps {
 const DEFAULT_WIDTH = 600;
 const DEFAULT_HEIGHT = 400;
 
-/**
- * Main tree visualization component
- * Renders SVG with nodes (circles) and edges (lines) using d3-hierarchy layout
- * Shows empty state when no nodes exist
- */
+const containerStyle: CSSProperties = {
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const emptyStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '300px',
+  color: '#888',
+  fontSize: '16px',
+};
+
 export default function TreeVisualization({
   root,
   highlightedNodeId,
@@ -28,17 +39,16 @@ export default function TreeVisualization({
 
   const { nodes, links } = useTreeLayout(root, dimensions);
 
-  // Empty state
   if (root === null) {
     return (
-      <div className="tree-visualization-empty">
+      <div style={emptyStyle}>
         <p>Add your first node to begin</p>
       </div>
     );
   }
 
   return (
-    <div className="tree-visualization">
+    <div style={containerStyle}>
       <svg
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
         style={{
@@ -47,14 +57,12 @@ export default function TreeVisualization({
           maxHeight: '400px',
         }}
       >
-        {/* Render edges first so they appear behind nodes */}
         <g className="tree-edges">
           {links.map((link, index) => (
             <TreeEdge key={`edge-${index}`} link={link} />
           ))}
         </g>
 
-        {/* Render nodes on top */}
         <g className="tree-nodes">
           {nodes.map((node) => (
             <TreeNode

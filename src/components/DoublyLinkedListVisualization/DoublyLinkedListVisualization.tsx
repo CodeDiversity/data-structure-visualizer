@@ -1,0 +1,178 @@
+import { CSSProperties } from 'react';
+import { DoublyLinkedListNode } from '../../types';
+
+interface DoublyLinkedListVisualizationProps {
+  head: DoublyLinkedListNode | null;
+  highlightedNodeId: string | null;
+}
+
+const containerStyle: CSSProperties = {
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const emptyStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '300px',
+  color: '#888',
+  fontSize: '16px',
+};
+
+const NODE_WIDTH = 90;
+const NODE_HEIGHT = 50;
+const NODE_GAP = 72;
+const START_X = 32;
+const START_Y = 110;
+
+export default function DoublyLinkedListVisualization({
+  head,
+  highlightedNodeId,
+}: DoublyLinkedListVisualizationProps) {
+  if (head === null) {
+    return (
+      <div style={emptyStyle}>
+        <p>Append your first node to begin</p>
+      </div>
+    );
+  }
+
+  const nodes: DoublyLinkedListNode[] = [];
+  let current: DoublyLinkedListNode | null = head;
+
+  while (current !== null) {
+    nodes.push(current);
+    current = current.next;
+  }
+
+  const width = Math.max(640, START_X * 2 + nodes.length * NODE_WIDTH + (nodes.length - 1) * NODE_GAP);
+  const height = 260;
+
+  return (
+    <div style={{ ...containerStyle, overflowX: 'auto', justifyContent: 'flex-start' }}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        style={{
+          width: '100%',
+          height: 'auto',
+          minWidth: '100%',
+          maxHeight: '340px',
+        }}
+      >
+        <defs>
+          <marker id="doubly-next-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#6c63ff" />
+          </marker>
+          <marker id="doubly-prev-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L9,3 z" fill="#ec4899" />
+          </marker>
+        </defs>
+
+        <text x={START_X} y={54} fill="#334155" fontSize="16" fontWeight="600">
+          Head
+        </text>
+        <line
+          x1={START_X + 10}
+          y1={62}
+          x2={START_X + 10}
+          y2={START_Y - 8}
+          stroke="#94a3b8"
+          strokeWidth="3"
+          strokeDasharray="6 6"
+        />
+
+        {nodes.map((node, index) => {
+          const x = START_X + index * (NODE_WIDTH + NODE_GAP);
+          const isHighlighted = node.id === highlightedNodeId;
+          const nextX = x + NODE_WIDTH + NODE_GAP;
+
+          return (
+            <g key={node.id}>
+              <rect
+                x={x}
+                y={START_Y}
+                width={NODE_WIDTH}
+                height={NODE_HEIGHT}
+                rx="12"
+                fill={isHighlighted ? '#f59e0b' : '#2563eb'}
+                stroke={isHighlighted ? '#b45309' : '#1d4ed8'}
+                strokeWidth="3"
+              />
+              <text
+                x={x + NODE_WIDTH / 2}
+                y={START_Y + NODE_HEIGHT / 2 + 6}
+                textAnchor="middle"
+                fill="#ffffff"
+                fontSize="18"
+                fontWeight="700"
+              >
+                {node.value}
+              </text>
+
+              {node.next !== null ? (
+                <>
+                  <line
+                    x1={x + NODE_WIDTH}
+                    y1={START_Y + 18}
+                    x2={nextX - 12}
+                    y2={START_Y + 18}
+                    stroke="#6c63ff"
+                    strokeWidth="4"
+                    markerEnd="url(#doubly-next-arrow)"
+                  />
+                  <text
+                    x={x + NODE_WIDTH + NODE_GAP / 2}
+                    y={START_Y + 6}
+                    textAnchor="middle"
+                    fill="#64748b"
+                    fontSize="12"
+                    fontWeight="600"
+                  >
+                    next
+                  </text>
+                </>
+              ) : (
+                <text
+                  x={x + NODE_WIDTH + 18}
+                  y={START_Y + 22}
+                  fill="#64748b"
+                  fontSize="14"
+                  fontWeight="600"
+                >
+                  null
+                </text>
+              )}
+
+              {node.prev !== null && (
+                <>
+                  <line
+                    x1={x + NODE_WIDTH}
+                    y1={START_Y + NODE_HEIGHT - 10}
+                    x2={nextX - 12}
+                    y2={START_Y + NODE_HEIGHT - 10}
+                    stroke="#ec4899"
+                    strokeWidth="4"
+                    markerStart="url(#doubly-prev-arrow)"
+                  />
+                  <text
+                    x={x + NODE_WIDTH + NODE_GAP / 2}
+                    y={START_Y + NODE_HEIGHT + 18}
+                    textAnchor="middle"
+                    fill="#64748b"
+                    fontSize="12"
+                    fontWeight="600"
+                  >
+                    prev
+                  </text>
+                </>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}

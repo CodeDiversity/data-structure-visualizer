@@ -4,6 +4,7 @@
  */
 
 import { TreeNode, Step } from '../../types';
+import { generateNodeId } from './bst';
 
 /**
  * Line numbers reference for code highlighting
@@ -13,34 +14,54 @@ export const LINE_NUMBERS = {
   INSERT: {
     FUNCTION_START: 1,
     BASE_CASE: 2,
-    RECURSIVE_INSERT: 3,
-    RETURN_ROOT: 4,
+    GO_LEFT: 6,
+    GO_RIGHT: 8,
+    RETURN_ROOT: 12,
   },
   DELETE: {
     FUNCTION_START: 1,
     BASE_CASE: 2,
-    RECURSIVE_DELETE: 3,
-    FOUND_NODE: 4,
-    CASE_1: 5,
-    CASE_2: 6,
-    CASE_3: 7,
-    RETURN_ROOT: 8,
+    GO_LEFT: 6,
+    GO_RIGHT: 8,
+    FOUND_NODE: 10,
+    CASE_1: 11,
+    CASE_2: 14,
+    CASE_3: 16,
+    RETURN_ROOT: 21,
   },
   SEARCH: {
     FUNCTION_START: 1,
     BASE_CASE: 2,
-    COMPARE: 3,
-    RECURSIVE_SEARCH: 4,
-    RETURN_RESULT: 5,
+    FOUND: 6,
+    GO_LEFT: 10,
+    GO_RIGHT: 12,
   },
   INORDER: {
     FUNCTION_START: 1,
-    TRAVERSE_LEFT: 2,
-    VISIT_NODE: 3,
-    TRAVERSE_RIGHT: 4,
-    RETURN_RESULT: 5,
+    TRAVERSE_LEFT: 6,
+    VISIT_NODE: 8,
+    TRAVERSE_RIGHT: 10,
+  },
+  BFS: {
+    BASE_CASE: 2,
+    INIT_QUEUE: 6,
+    LOOP_START: 9,
+    VISIT_NODE: 11,
+    ENQUEUE_LEFT: 13,
+    ENQUEUE_RIGHT: 17,
+    RETURN_RESULT: 22,
   },
 };
+
+function findMin(node: TreeNode): TreeNode {
+  let current = node;
+
+  while (current.left !== null) {
+    current = current.left;
+  }
+
+  return current;
+}
 
 /**
  * Generator for BST insert operation with step-by-step visualization
@@ -56,7 +77,7 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
       description: `Creating new node with value ${value}`,
     };
     const newNode: TreeNode = {
-      id: `node_temp_${Date.now()}`,
+      id: generateNodeId(),
       value,
       left: null,
       right: null,
@@ -76,27 +97,54 @@ export function* bstInsertGenerator(root: TreeNode | null, value: number): Gener
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.INSERT.RECURSIVE_INSERT,
+      line: LINE_NUMBERS.INSERT.GO_LEFT,
       description: `${value} < ${root.value}, going left`,
     };
 
     const updatedLeft = yield* bstInsertGenerator(root.left, value);
-    root.left = updatedLeft;
+
+    // Return a new branch so React sees the BST structure update.
+    const updatedRoot: TreeNode = {
+      ...root,
+      left: updatedLeft,
+    };
+
+    yield {
+      type: 'move',
+      nodeId: updatedRoot.id,
+      line: LINE_NUMBERS.INSERT.RETURN_ROOT,
+      description: `Returning node ${updatedRoot.value}`,
+    };
+
+    return updatedRoot;
   } else if (value > root.value) {
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.INSERT.RECURSIVE_INSERT,
+      line: LINE_NUMBERS.INSERT.GO_RIGHT,
       description: `${value} > ${root.value}, going right`,
     };
 
     const updatedRight = yield* bstInsertGenerator(root.right, value);
-    root.right = updatedRight;
+
+    const updatedRoot: TreeNode = {
+      ...root,
+      right: updatedRight,
+    };
+
+    yield {
+      type: 'move',
+      nodeId: updatedRoot.id,
+      line: LINE_NUMBERS.INSERT.RETURN_ROOT,
+      description: `Returning node ${updatedRoot.value}`,
+    };
+
+    return updatedRoot;
   } else {
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.INSERT.RECURSIVE_INSERT,
+      line: LINE_NUMBERS.INSERT.GO_RIGHT,
       description: `${value} === ${root.value}, duplicate, not inserting`,
     };
   }
@@ -139,22 +187,48 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.DELETE.RECURSIVE_DELETE,
+      line: LINE_NUMBERS.DELETE.GO_LEFT,
       description: `${value} < ${root.value}, searching left subtree`,
     };
 
     const updatedLeft = yield* bstDeleteGenerator(root.left, value);
-    root.left = updatedLeft;
+
+    const updatedRoot: TreeNode = {
+      ...root,
+      left: updatedLeft,
+    };
+
+    yield {
+      type: 'move',
+      nodeId: updatedRoot.id,
+      line: LINE_NUMBERS.DELETE.RETURN_ROOT,
+      description: `Returning node ${updatedRoot.value}`,
+    };
+
+    return updatedRoot;
   } else if (value > root.value) {
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.DELETE.RECURSIVE_DELETE,
+      line: LINE_NUMBERS.DELETE.GO_RIGHT,
       description: `${value} > ${root.value}, searching right subtree`,
     };
 
     const updatedRight = yield* bstDeleteGenerator(root.right, value);
-    root.right = updatedRight;
+
+    const updatedRoot: TreeNode = {
+      ...root,
+      right: updatedRight,
+    };
+
+    yield {
+      type: 'move',
+      nodeId: updatedRoot.id,
+      line: LINE_NUMBERS.DELETE.RETURN_ROOT,
+      description: `Returning node ${updatedRoot.value}`,
+    };
+
+    return updatedRoot;
   } else {
     // Line 4: Found the node to delete
     yield {
@@ -202,14 +276,31 @@ export function* bstDeleteGenerator(root: TreeNode | null, value: number): Gener
       line: LINE_NUMBERS.DELETE.CASE_3,
       description: `Node ${value} has two children, finding in-order successor`,
     };
+
+    const successor = findMin(root.right);
+    const updatedRight = yield* bstDeleteGenerator(root.right, successor.value);
+    const updatedRoot: TreeNode = {
+      ...root,
+      value: successor.value,
+      right: updatedRight,
+    };
+
+    yield {
+      type: 'move',
+      nodeId: updatedRoot.id,
+      line: LINE_NUMBERS.DELETE.RETURN_ROOT,
+      description: `Replacing ${value} with successor ${successor.value}`,
+    };
+
+    return updatedRoot;
   }
 
   // Line 8: return root
   yield {
     type: 'move',
-    nodeId: root.id,
+    nodeId: root!.id,
     line: LINE_NUMBERS.DELETE.RETURN_ROOT,
-    description: `Returning node ${root.value}`,
+    description: `Returning node ${root!.value}`,
   };
 
   return root;
@@ -242,7 +333,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
     yield {
       type: 'found',
       nodeId: root.id,
-      line: LINE_NUMBERS.SEARCH.COMPARE,
+      line: LINE_NUMBERS.SEARCH.FOUND,
       description: `Found ${value} at node ${root.id}`,
     };
     return true;
@@ -253,7 +344,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.SEARCH.RECURSIVE_SEARCH,
+      line: LINE_NUMBERS.SEARCH.GO_LEFT,
       description: `${value} < ${root.value}, searching left subtree`,
     };
 
@@ -262,7 +353,7 @@ export function* bstSearchGenerator(root: TreeNode | null, value: number): Gener
     yield {
       type: 'compare',
       nodeId: root.id,
-      line: LINE_NUMBERS.SEARCH.RECURSIVE_SEARCH,
+      line: LINE_NUMBERS.SEARCH.GO_RIGHT,
       description: `${value} > ${root.value}, searching right subtree`,
     };
 
@@ -315,11 +406,77 @@ export function* bstInorderGenerator(root: TreeNode | null): Generator<Step, num
   yield* traverse(root);
 
   // Line 5: return result
+  return result;
+}
+
+/**
+ * Generator for BST breadth-first traversal with step-by-step visualization
+ */
+export function* bstBfsGenerator(root: TreeNode | null): Generator<Step, number[], undefined> {
+  if (root === null) {
+    yield {
+      type: 'not-found',
+      nodeId: null,
+      line: LINE_NUMBERS.BFS.BASE_CASE,
+      description: 'Tree is empty, BFS traversal returns []',
+    };
+    return [];
+  }
+
+  const queue: TreeNode[] = [root];
+  const result: number[] = [];
+
+  yield {
+    type: 'traverse',
+    nodeId: root.id,
+    line: LINE_NUMBERS.BFS.INIT_QUEUE,
+    description: `Starting BFS with root ${root.value}`,
+  };
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+
+    yield {
+      type: 'traverse',
+      nodeId: current.id,
+      line: LINE_NUMBERS.BFS.LOOP_START,
+      description: `Dequeued ${current.value}`,
+    };
+
+    yield {
+      type: 'visit',
+      nodeId: current.id,
+      line: LINE_NUMBERS.BFS.VISIT_NODE,
+      description: `Visiting ${current.value}`,
+    };
+    result.push(current.value);
+
+    if (current.left !== null) {
+      yield {
+        type: 'move',
+        nodeId: current.left.id,
+        line: LINE_NUMBERS.BFS.ENQUEUE_LEFT,
+        description: `Enqueue left child ${current.left.value}`,
+      };
+      queue.push(current.left);
+    }
+
+    if (current.right !== null) {
+      yield {
+        type: 'move',
+        nodeId: current.right.id,
+        line: LINE_NUMBERS.BFS.ENQUEUE_RIGHT,
+        description: `Enqueue right child ${current.right.value}`,
+      };
+      queue.push(current.right);
+    }
+  }
+
   yield {
     type: 'traverse',
     nodeId: null,
-    line: LINE_NUMBERS.INORDER.RETURN_RESULT,
-    description: `Inorder traversal complete: [${result.join(', ')}]`,
+    line: LINE_NUMBERS.BFS.RETURN_RESULT,
+    description: `BFS traversal complete: [${result.join(', ')}]`,
   };
 
   return result;
