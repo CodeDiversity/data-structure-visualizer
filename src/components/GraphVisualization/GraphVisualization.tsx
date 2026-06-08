@@ -1,9 +1,15 @@
 import { CSSProperties } from 'react';
-import { GraphData } from '../../types';
+import { GraphData, Step } from '../../types';
 
 interface GraphVisualizationProps {
   graph: GraphData;
   highlightedNodeId: string | null;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const containerStyle: CSSProperties = {
@@ -18,7 +24,7 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
@@ -28,7 +34,7 @@ const centerX = width / 2;
 const centerY = height / 2;
 const radius = 130;
 
-export default function GraphVisualization({ graph, highlightedNodeId }: GraphVisualizationProps) {
+export default function GraphVisualization({ graph, highlightedNodeId, step }: GraphVisualizationProps) {
   if (graph.nodes.length === 0) {
     return (
       <div style={emptyStyle}>
@@ -50,7 +56,7 @@ export default function GraphVisualization({ graph, highlightedNodeId }: GraphVi
   const nodeMap = new Map(positionedNodes.map((node) => [node.id, node]));
 
   return (
-    <div style={containerStyle}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={containerStyle}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{
@@ -74,7 +80,7 @@ export default function GraphVisualization({ graph, highlightedNodeId }: GraphVi
               y1={source.y}
               x2={target.x}
               y2={target.y}
-              stroke="#94a3b8"
+              stroke="var(--border)"
               strokeWidth="4"
               opacity="0.9"
             />
@@ -90,15 +96,15 @@ export default function GraphVisualization({ graph, highlightedNodeId }: GraphVi
                 cx={node.x}
                 cy={node.y}
                 r="28"
-                fill={isHighlighted ? '#f59e0b' : '#0ea5e9'}
-                stroke={isHighlighted ? '#b45309' : '#0369a1'}
+                fill={isHighlighted ? 'var(--highlight-yellow)' : 'var(--accent)'}
+                stroke={isHighlighted ? 'var(--highlight-orange)' : 'var(--accent)'}
                 strokeWidth="4"
               />
               <text
                 x={node.x}
                 y={node.y + 6}
                 textAnchor="middle"
-                fill="#ffffff"
+                fill="var(--bg-panel)"
                 fontSize="16"
                 fontWeight="700"
               >
