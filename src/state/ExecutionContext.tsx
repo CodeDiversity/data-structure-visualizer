@@ -10,6 +10,7 @@ import {
   LinkedListNode,
   MergeSortData,
   OperationKind,
+  QuickSortData,
   PrefixSumData,
   QueueData,
   RecursionData,
@@ -56,6 +57,8 @@ interface ExecutionContextValue {
   setBinarySearchData: (data: BinarySearchData) => void;
   mergeSortData: MergeSortData;
   setMergeSortData: (data: MergeSortData) => void;
+  quickSortData: QuickSortData;
+  setQuickSortData: (data: QuickSortData) => void;
   prefixSumData: PrefixSumData;
   setPrefixSumData: (data: PrefixSumData) => void;
   kadaneData: KadaneData;
@@ -120,6 +123,14 @@ export function ExecutionProvider({ children }: ExecutionProviderProps) {
     sortedIndices: [],
     mergeStart: null,
     mergeEnd: null,
+  });
+  const [quickSortData, setQuickSortData] = useState<QuickSortData>({
+    values: [],
+    activeIndices: [],
+    sortedIndices: [],
+    pivotIndex: null,
+    partitionStart: null,
+    partitionEnd: null,
   });
   const [prefixSumData, setPrefixSumData] = useState<PrefixSumData>({
     values: [],
@@ -195,6 +206,8 @@ export function ExecutionProvider({ children }: ExecutionProviderProps) {
     setBinarySearchData,
     mergeSortData,
     setMergeSortData,
+    quickSortData,
+    setQuickSortData,
     prefixSumData,
     setPrefixSumData,
     kadaneData,
