@@ -1,12 +1,18 @@
 import { CSSProperties, useMemo } from 'react';
 import { useTreeLayout } from '../../hooks/useTreeLayout';
-import { TreeNode as TreeNodeType } from '../../types';
+import { TreeNode as TreeNodeType, Step } from '../../types';
 import TreeNode from './TreeNode';
 import TreeEdge from './TreeEdge';
 
 interface TreeVisualizationProps {
   root: TreeNodeType | null;
   highlightedNodeId: string | null;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const DEFAULT_WIDTH = 600;
@@ -24,13 +30,14 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
 export default function TreeVisualization({
   root,
   highlightedNodeId,
+  step,
 }: TreeVisualizationProps) {
   const dimensions = useMemo(
     () => ({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT }),
@@ -48,7 +55,7 @@ export default function TreeVisualization({
   }
 
   return (
-    <div style={containerStyle}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={containerStyle}>
       <svg
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
         style={{

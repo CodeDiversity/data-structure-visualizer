@@ -36,13 +36,13 @@ export default function TreeNode({ node, isHighlighted }: TreeNodeProps) {
         cx={x}
         cy={y}
         r={radius}
-        fill={isHighlighted ? '#ff6b6b' : '#4dabf7'}
-        stroke={isHighlighted ? '#c92a2a' : '#1c7ed6'}
+        fill={isHighlighted ? 'var(--highlight-yellow)' : 'var(--accent)'}
+        stroke={isHighlighted ? 'var(--highlight-orange)' : 'var(--accent)'}
         strokeWidth={2}
         initial={false}
         animate={{
-          fill: isHighlighted ? '#ff6b6b' : '#4dabf7',
-          stroke: isHighlighted ? '#c92a2a' : '#1c7ed6',
+          fill: isHighlighted ? 'var(--highlight-yellow)' : 'var(--accent)',
+          stroke: isHighlighted ? 'var(--highlight-orange)' : 'var(--accent)',
         }}
         transition={{
           duration: 0.3,
@@ -55,7 +55,7 @@ export default function TreeNode({ node, isHighlighted }: TreeNodeProps) {
         y={y}
         textAnchor="middle"
         dominantBaseline="middle"
-        fill="white"
+        fill="var(--bg-panel)"
         fontSize={fontSize}
         fontWeight="bold"
         style={{
