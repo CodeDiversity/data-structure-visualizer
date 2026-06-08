@@ -18,8 +18,9 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    return 'dark';
+    const initial = stored === 'light' || stored === 'dark' ? stored : 'dark';
+    document.documentElement.setAttribute('data-theme', initial);
+    return initial;
   });
 
   useEffect(() => {
