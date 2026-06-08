@@ -482,8 +482,9 @@ function AppContent() {
             })}
           </div>
           <button
+            type="button"
             onClick={toggleTheme}
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
             style={{
               padding: '8px 12px',
               border: '1px solid var(--border)',
