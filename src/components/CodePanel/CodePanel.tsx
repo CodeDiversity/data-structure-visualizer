@@ -1,6 +1,8 @@
 import { CSSProperties, ReactNode, createElement, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useTheme } from '../../state/ThemeContext';
 
 interface CodePanelProps {
   code: string;
@@ -9,8 +11,14 @@ interface CodePanelProps {
   variableValues?: Record<string, string>;
 }
 
-const hoverStyle = {
+const hoverStyleDark = {
   textDecoration: 'underline dotted rgba(255, 255, 255, 0.55)',
+  textUnderlineOffset: '3px',
+  cursor: 'help',
+};
+
+const hoverStyleLight = {
+  textDecoration: 'underline dotted rgba(0, 0, 0, 0.4)',
   textUnderlineOffset: '3px',
   cursor: 'help',
 };
@@ -31,23 +39,26 @@ export default function CodePanel({
   language,
   variableValues = {},
 }: CodePanelProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const variableNames = Object.keys(variableValues).sort((left, right) => right.length - left.length);
 
   return (
     <div
       style={{
-        backgroundColor: '#1e1e1e',
+        backgroundColor: isDark ? '#1e1e1e' : '#f8f8f8',
         padding: '16px',
         borderRadius: '8px',
         fontFamily: 'Consolas, Monaco, "Courier New", monospace',
         fontSize: '14px',
         overflow: 'auto',
         maxHeight: '480px',
+        border: `1px solid ${isDark ? 'var(--border)' : 'var(--border)'}`,
       }}
     >
       <SyntaxHighlighter
         language={language}
-        style={vscDarkPlus}
+        style={isDark ? vscDarkPlus : vs}
         showLineNumbers
         wrapLines
         lineProps={(lineNumber) =>
@@ -55,8 +66,8 @@ export default function CodePanel({
             ? {
                 style: {
                   display: 'block',
-                  backgroundColor: '#444',
-                  borderLeft: '3px solid #fff',
+                  backgroundColor: isDark ? '#444' : '#e8e8e8',
+                  borderLeft: `3px solid ${isDark ? '#fff' : '#333'}`,
                 },
               }
             : { style: { display: 'block' } }
@@ -67,12 +78,12 @@ export default function CodePanel({
           padding: 0,
         }}
         renderer={({ rows }) =>
-          rows.map((row, index) => renderHastNode(row as HastNode, `${index}`, variableNames, variableValues))
+          rows.map((row, index) => renderHastNode(row as HastNode, `${index}`, variableNames, variableValues, isDark))
         }
         lineNumberStyle={{
           minWidth: '2.5em',
           paddingRight: '1em',
-          color: '#858585',
+          color: isDark ? '#858585' : '#666',
           userSelect: 'none',
         }}
       >
@@ -86,10 +97,11 @@ function renderHastNode(
   node: HastChild,
   key: string,
   variableNames: string[],
-  variableValues: Record<string, string>
+  variableValues: Record<string, string>,
+  isDark: boolean
 ): ReactNode {
   if (typeof node === 'string') {
-    return decorateText(node, variableNames, variableValues);
+    return decorateText(node, variableNames, variableValues, isDark);
   }
 
   if (!node || typeof node !== 'object') {
@@ -97,13 +109,13 @@ function renderHastNode(
   }
 
   if (node.type === 'text') {
-    return decorateText(node.value ?? '', variableNames, variableValues);
+    return decorateText(node.value ?? '', variableNames, variableValues, isDark);
   }
 
   const tagName = node.tagName ?? 'span';
   const properties = normalizeProperties(node.properties);
   const children = (node.children ?? []).map((child, index) =>
-    renderHastNode(child, `${key}-${index}`, variableNames, variableValues)
+    renderHastNode(child, `${key}-${index}`, variableNames, variableValues, isDark)
   );
 
   return createElement(tagName, { key, ...properties }, ...children);
@@ -112,7 +124,8 @@ function renderHastNode(
 function decorateText(
   text: string,
   variableNames: string[],
-  variableValues: Record<string, string>
+  variableValues: Record<string, string>,
+  isDark: boolean
 ): ReactNode {
   if (variableNames.length === 0) {
     return text;
@@ -122,29 +135,78 @@ function decorateText(
   let cursor = 0;
 
   while (cursor < text.length) {
-    const match = findNextVariable(text, cursor, variableNames);
+    const arrayAccessMatch = findNextArrayAccess(text, cursor, variableNames, variableValues);
+    const variableMatch = findNextVariable(text, cursor, variableNames);
 
-    if (!match) {
+    const nextVariableIndex = variableMatch?.index ?? Infinity;
+    const nextArrayIndex = arrayAccessMatch?.index ?? Infinity;
+
+    if (arrayAccessMatch && nextArrayIndex < nextVariableIndex) {
+      if (arrayAccessMatch.index > cursor) {
+        parts.push(text.slice(cursor, arrayAccessMatch.index));
+      }
+
+      parts.push(
+        <VariableToken
+          key={`array-${arrayAccessMatch.index}`}
+          name={arrayAccessMatch.name}
+          value={variableValues[arrayAccessMatch.name]}
+          isDark={isDark}
+        />
+      );
+
+      cursor = arrayAccessMatch.endIndex;
+      continue;
+    }
+
+    if (!variableMatch) {
       parts.push(text.slice(cursor));
       break;
     }
 
-    if (match.index > cursor) {
-      parts.push(text.slice(cursor, match.index));
+    if (variableMatch.index > cursor) {
+      parts.push(text.slice(cursor, variableMatch.index));
     }
 
     parts.push(
       <VariableToken
-        key={`${match.name}-${match.index}`}
-        name={match.name}
-        value={variableValues[match.name]}
+        key={`${variableMatch.name}-${variableMatch.index}`}
+        name={variableMatch.name}
+        value={variableValues[variableMatch.name]}
+        isDark={isDark}
       />
     );
 
-    cursor = match.index + match.name.length;
+    cursor = variableMatch.index + variableMatch.name.length;
   }
 
   return parts;
+}
+
+function findNextArrayAccess(
+  text: string,
+  start: number,
+  variableNames: string[],
+  variableValues: Record<string, string>
+): { index: number; endIndex: number; name: string } | null {
+  const arrayAccessPattern = /([A-Za-z_$][A-Za-z0-9_$]*)\[([A-Za-z_$][A-Za-z0-9_$]*)\]/g;
+
+  let match;
+  while ((match = arrayAccessPattern.exec(text)) !== null) {
+    if (match.index < start) continue;
+
+    const arrayName = match[1];
+    const indexName = match[2];
+
+    if (variableNames.includes(arrayName) && variableNames.includes(indexName)) {
+      const fullName = `${arrayName}[${indexName}]`;
+      if (fullName in variableValues) {
+        return { index: match.index, endIndex: match.index + match[0].length, name: fullName };
+      }
+    }
+  }
+
+  return null;
 }
 
 function findNextVariable(text: string, start: number, variableNames: string[]) {
@@ -194,10 +256,12 @@ function normalizeProperties(properties?: Record<string, unknown>) {
 interface VariableTokenProps {
   name: string;
   value?: string;
+  isDark: boolean;
 }
 
-function VariableToken({ name, value }: VariableTokenProps) {
+function VariableToken({ name, value, isDark }: VariableTokenProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const hoverStyle = isDark ? hoverStyleDark : hoverStyleLight;
 
   return (
     <span
@@ -218,13 +282,13 @@ function VariableToken({ name, value }: VariableTokenProps) {
             zIndex: 20,
             padding: '6px 10px',
             borderRadius: '8px',
-            background: '#0f172a',
-            color: '#f8fafc',
+            background: isDark ? '#0f172a' : '#fff',
+            color: isDark ? '#f8fafc' : '#111',
             fontSize: '12px',
             lineHeight: 1.4,
             whiteSpace: 'nowrap',
-            boxShadow: '0 12px 24px rgba(15, 23, 42, 0.35)',
-            border: '1px solid rgba(148, 163, 184, 0.35)',
+            boxShadow: isDark ? '0 12px 24px rgba(15, 23, 42, 0.35)' : '0 12px 24px rgba(0, 0, 0, 0.15)',
+            border: `1px solid ${isDark ? 'rgba(148, 163, 184, 0.35)' : '#e5e7eb'}`,
             pointerEvents: 'none',
           }}
         >
@@ -235,9 +299,9 @@ function VariableToken({ name, value }: VariableTokenProps) {
               top: '-5px',
               width: '10px',
               height: '10px',
-              background: '#0f172a',
-              borderLeft: '1px solid rgba(148, 163, 184, 0.35)',
-              borderTop: '1px solid rgba(148, 163, 184, 0.35)',
+              background: isDark ? '#0f172a' : '#fff',
+              borderLeft: `1px solid ${isDark ? 'rgba(148, 163, 184, 0.35)' : '#e5e7eb'}`,
+              borderTop: `1px solid ${isDark ? 'rgba(148, 163, 184, 0.35)' : '#e5e7eb'}`,
               transform: 'rotate(45deg)',
             }}
           />
