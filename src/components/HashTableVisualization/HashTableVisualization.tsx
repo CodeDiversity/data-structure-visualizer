@@ -1,8 +1,14 @@
 import { CSSProperties } from 'react';
-import { HashTableData } from '../../types';
+import { HashTableData, Step } from '../../types';
 
 interface HashTableVisualizationProps {
   data: HashTableData;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const emptyStyle: CSSProperties = {
@@ -10,11 +16,11 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
-export default function HashTableVisualization({ data }: HashTableVisualizationProps) {
+export default function HashTableVisualization({ data, step }: HashTableVisualizationProps) {
   const hasValues = data.buckets.some((bucket) => bucket.length > 0);
 
   if (!hasValues) {
@@ -26,7 +32,10 @@ export default function HashTableVisualization({ data }: HashTableVisualizationP
   }
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '18px', justifyContent: 'center' }}>
+    <div
+      className={`spring-transition ${getPhaseClass(step?.phase)}`}
+      style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '18px', justifyContent: 'center' }}
+    >
       {data.buckets.map((bucket, bucketIndex) => {
         const isActiveBucket = data.activeBucketIndex === bucketIndex;
 
@@ -37,8 +46,8 @@ export default function HashTableVisualization({ data }: HashTableVisualizationP
                 minWidth: '90px',
                 padding: '14px 16px',
                 borderRadius: '12px',
-                background: isActiveBucket ? '#dbeafe' : '#e2e8f0',
-                color: '#0f172a',
+                background: isActiveBucket ? 'var(--highlight-pink)' : 'var(--border)',
+                color: 'var(--text-primary)',
                 fontWeight: 700,
                 textAlign: 'center',
               }}
@@ -48,7 +57,7 @@ export default function HashTableVisualization({ data }: HashTableVisualizationP
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               {bucket.length === 0 ? (
-                <div style={{ color: '#94a3b8', fontStyle: 'italic' }}>empty</div>
+                <div style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>empty</div>
               ) : (
                 bucket.map((value, entryIndex) => {
                   const isActive =
@@ -70,20 +79,20 @@ export default function HashTableVisualization({ data }: HashTableVisualizationP
                           width: '72px',
                           height: '72px',
                           borderRadius: '14px',
-                          border: `3px solid ${isFound ? '#16a34a' : isActive ? '#f59e0b' : '#cbd5e1'}`,
-                          background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : '#ffffff',
-                          color: '#0f172a',
+                          border: `3px solid ${isFound ? 'var(--highlight-green)' : isActive ? 'var(--highlight-yellow)' : 'var(--border)'}`,
+                          background: isFound ? '#dcfce7' : isActive ? '#fff7ed' : 'var(--bg-panel)',
+                          color: 'var(--text-primary)',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          boxShadow: '0 10px 20px rgba(15, 23, 42, 0.08)',
+                          boxShadow: 'var(--shadow)',
                         }}
                       >
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>{entryIndex}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{entryIndex}</div>
                         <div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
                       </div>
-                      {entryIndex < bucket.length - 1 && <div style={{ color: '#64748b', fontWeight: 700 }}>→</div>}
+                      {entryIndex < bucket.length - 1 && <div style={{ color: 'var(--text-secondary)', fontWeight: 700 }}>→</div>}
                     </div>
                   );
                 })
