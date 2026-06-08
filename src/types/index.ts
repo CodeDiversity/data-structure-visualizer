@@ -190,6 +190,9 @@ export interface Step {
   foundIndex?: number | null;
   mergeStart?: number | null;
   mergeEnd?: number | null;
+  pivotIndex?: number | null;
+  partitionStart?: number | null;
+  partitionEnd?: number | null;
   queryLeft?: number | null;
   queryRight?: number | null;
   rangeSum?: number | null;
