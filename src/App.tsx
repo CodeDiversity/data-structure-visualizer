@@ -577,42 +577,43 @@ function AppContent() {
               </div>
             )}
             {activeStructure === 'array' ? (
-              <ArrayVisualization data={arrayData} />
+              <ArrayVisualization data={arrayData} step={currentStep} />
             ) : activeStructure === 'stack' ? (
-              <StackVisualization data={stackData} />
+              <StackVisualization data={stackData} step={currentStep} />
             ) : activeStructure === 'queue' ? (
-              <QueueVisualization data={queueData} />
+              <QueueVisualization data={queueData} step={currentStep} />
             ) : activeStructure === 'heap' ? (
-              <HeapVisualization data={heapData} />
+              <HeapVisualization data={heapData} step={currentStep} />
             ) : activeStructure === 'hash-table' ? (
-              <HashTableVisualization data={hashTableData} />
+              <HashTableVisualization data={hashTableData} step={currentStep} />
             ) : activeStructure === 'bst' ? (
-              <TreeVisualization root={bstRoot} highlightedNodeId={highlightedNodeId} />
+              <TreeVisualization root={bstRoot} highlightedNodeId={highlightedNodeId} step={currentStep} />
             ) : activeStructure === 'linked-list' ? (
-              <LinkedListVisualization head={linkedListHead} highlightedNodeId={highlightedNodeId} />
+              <LinkedListVisualization head={linkedListHead} highlightedNodeId={highlightedNodeId} step={currentStep} />
             ) : activeStructure === 'doubly-linked-list' ? (
               <DoublyLinkedListVisualization
                 head={doublyLinkedListHead}
                 highlightedNodeId={highlightedNodeId}
+                step={currentStep}
               />
             ) : activeStructure === 'graph' ? (
-              <GraphVisualization graph={graphData} highlightedNodeId={highlightedNodeId} />
+              <GraphVisualization graph={graphData} highlightedNodeId={highlightedNodeId} step={currentStep} />
             ) : activeStructure === 'two-pointer' ? (
-              <TwoPointerVisualization data={twoPointerData} />
+              <TwoPointerVisualization data={twoPointerData} step={currentStep} />
             ) : activeStructure === 'sliding-window' ? (
-              <SlidingWindowVisualization data={slidingWindowData} />
+              <SlidingWindowVisualization data={slidingWindowData} step={currentStep} />
             ) : activeStructure === 'binary-search' ? (
-              <BinarySearchVisualization data={binarySearchData} />
+              <BinarySearchVisualization data={binarySearchData} step={currentStep} />
             ) : activeStructure === 'merge-sort' ? (
-              <MergeSortVisualization data={mergeSortData} />
+              <MergeSortVisualization data={mergeSortData} step={currentStep} />
             ) : activeStructure === 'quick-sort' ? (
-              <QuickSortVisualization data={quickSortData} />
+              <QuickSortVisualization data={quickSortData} step={currentStep} />
             ) : activeStructure === 'prefix-sum' ? (
-              <PrefixSumVisualization data={prefixSumData} />
+              <PrefixSumVisualization data={prefixSumData} step={currentStep} />
             ) : activeStructure === 'kadane' ? (
-              <KadaneVisualization data={kadaneData} />
+              <KadaneVisualization data={kadaneData} step={currentStep} />
             ) : (
-              <RecursionVisualization data={recursionData} />
+              <RecursionVisualization data={recursionData} step={currentStep} />
             )}
           </div>
         </section>
