@@ -35,6 +35,11 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: start,
       mergeEnd: end,
+      debugVariables: {
+        values: nextValues,
+        start,
+        end,
+      },
     };
 
     if (start >= end) {
@@ -54,6 +59,12 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: start,
       mergeEnd: end,
+      debugVariables: {
+        values: nextValues,
+        start,
+        end,
+        mid,
+      },
     };
 
     yield {
@@ -66,6 +77,12 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: start,
       mergeEnd: mid,
+      debugVariables: {
+        values: nextValues,
+        start,
+        end,
+        mid,
+      },
     };
     yield* mergeSortRange(start, mid);
 
@@ -79,6 +96,12 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: mid + 1,
       mergeEnd: end,
+      debugVariables: {
+        values: nextValues,
+        start,
+        end,
+        mid,
+      },
     };
     yield* mergeSortRange(mid + 1, end);
 
@@ -92,6 +115,12 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: start,
       mergeEnd: end,
+      debugVariables: {
+        values: nextValues,
+        start,
+        end,
+        mid,
+      },
     };
     yield* mergeRange(start, mid, end);
   }
@@ -110,6 +139,13 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: start,
       mergeEnd: end,
+      debugVariables: {
+        values: nextValues,
+        start,
+        mid,
+        end,
+        left,
+      },
     };
 
     yield {
@@ -122,6 +158,14 @@ export function* mergeSortGenerator(
       sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
       mergeStart: start,
       mergeEnd: end,
+      debugVariables: {
+        values: nextValues,
+        start,
+        mid,
+        end,
+        left,
+        right,
+      },
     };
 
     let leftIndex = 0;
@@ -139,6 +183,17 @@ export function* mergeSortGenerator(
         sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
         mergeStart: start,
         mergeEnd: end,
+        debugVariables: {
+          values: nextValues,
+          start,
+          mid,
+          end,
+          left,
+          right,
+          leftIndex,
+          rightIndex,
+          writeIndex,
+        },
       };
 
       if (left[leftIndex] <= right[rightIndex]) {
@@ -154,6 +209,17 @@ export function* mergeSortGenerator(
           sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
           mergeStart: start,
           mergeEnd: end,
+          debugVariables: {
+            values: nextValues,
+            start,
+            mid,
+            end,
+            left,
+            right,
+            leftIndex,
+            rightIndex,
+            writeIndex,
+          },
         };
 
         leftIndex += 1;
@@ -170,6 +236,17 @@ export function* mergeSortGenerator(
           sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
           mergeStart: start,
           mergeEnd: end,
+          debugVariables: {
+            values: nextValues,
+            start,
+            mid,
+            end,
+            left,
+            right,
+            leftIndex,
+            rightIndex,
+            writeIndex,
+          },
         };
 
         rightIndex += 1;
@@ -191,6 +268,17 @@ export function* mergeSortGenerator(
         sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
         mergeStart: start,
         mergeEnd: end,
+        debugVariables: {
+          values: nextValues,
+          start,
+          mid,
+          end,
+          left,
+          right,
+          leftIndex,
+          rightIndex,
+          writeIndex,
+        },
       };
 
       leftIndex += 1;
@@ -210,6 +298,17 @@ export function* mergeSortGenerator(
         sortedIndices: Array.from(sortedIndices).sort((a, b) => a - b),
         mergeStart: start,
         mergeEnd: end,
+        debugVariables: {
+          values: nextValues,
+          start,
+          mid,
+          end,
+          left,
+          right,
+          leftIndex,
+          rightIndex,
+          writeIndex,
+        },
       };
 
       rightIndex += 1;
@@ -237,6 +336,11 @@ export function* mergeSortGenerator(
     sortedIndices: nextValues.map((_, index) => index),
     mergeStart: 0,
     mergeEnd: nextValues.length - 1,
+    debugVariables: {
+      values: nextValues,
+      start: 0,
+      end: nextValues.length - 1,
+    },
   };
 
   return nextValues;

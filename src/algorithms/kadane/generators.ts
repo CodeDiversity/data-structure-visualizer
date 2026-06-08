@@ -31,6 +31,14 @@ export function* kadaneGenerator(
     bestEnd,
     currentSum,
     bestSum,
+    debugVariables: {
+      values,
+      currentSum,
+      bestSum,
+      currentStart,
+      bestStart,
+      bestEnd,
+    },
   };
 
   yield {
@@ -45,6 +53,14 @@ export function* kadaneGenerator(
     bestEnd,
     currentSum,
     bestSum,
+    debugVariables: {
+      values,
+      currentSum,
+      bestSum,
+      currentStart,
+      bestStart,
+      bestEnd,
+    },
   };
 
   for (let index = 1; index < values.length; index += 1) {
@@ -60,6 +76,15 @@ export function* kadaneGenerator(
       bestEnd,
       currentSum,
       bestSum,
+      debugVariables: {
+        values,
+        index,
+        currentSum,
+        bestSum,
+        currentStart,
+        bestStart,
+        bestEnd,
+      },
     };
 
     if (currentSum + values[index] < values[index]) {
@@ -78,6 +103,15 @@ export function* kadaneGenerator(
         bestEnd,
         currentSum,
         bestSum,
+        debugVariables: {
+          values,
+          index,
+          currentSum,
+          bestSum,
+          currentStart,
+          bestStart,
+          bestEnd,
+        },
       };
     } else {
       currentSum += values[index];
@@ -94,6 +128,15 @@ export function* kadaneGenerator(
         bestEnd,
         currentSum,
         bestSum,
+        debugVariables: {
+          values,
+          index,
+          currentSum,
+          bestSum,
+          currentStart,
+          bestStart,
+          bestEnd,
+        },
       };
     }
 
@@ -114,6 +157,15 @@ export function* kadaneGenerator(
         bestEnd,
         currentSum,
         bestSum,
+        debugVariables: {
+          values,
+          index,
+          currentSum,
+          bestSum,
+          currentStart,
+          bestStart,
+          bestEnd,
+        },
       };
     }
   }
@@ -130,6 +182,14 @@ export function* kadaneGenerator(
     bestEnd,
     currentSum,
     bestSum,
+    debugVariables: {
+      values,
+      currentSum,
+      bestSum,
+      currentStart,
+      bestStart,
+      bestEnd,
+    },
   };
 
   return { bestSum, bestStart, bestEnd };

@@ -26,6 +26,11 @@ export function* buildPrefixSumGenerator(
     prefixValuesSnapshot: [],
     activeIndices: [],
     prefixActiveIndices: [],
+    debugVariables: {
+      values,
+      prefix: prefixValues,
+      runningSum,
+    },
   };
 
   for (let index = 0; index < values.length; index += 1) {
@@ -38,6 +43,12 @@ export function* buildPrefixSumGenerator(
       prefixValuesSnapshot: [...prefixValues],
       activeIndices: [index],
       prefixActiveIndices: [],
+      debugVariables: {
+        values,
+        prefix: prefixValues,
+        runningSum,
+        index,
+      },
     };
 
     runningSum += values[index];
@@ -52,6 +63,12 @@ export function* buildPrefixSumGenerator(
       activeIndices: [index],
       prefixActiveIndices: [],
       rangeSum: runningSum,
+      debugVariables: {
+        values,
+        prefix: prefixValues,
+        runningSum,
+        index,
+      },
     };
 
     prefixValues[index] = runningSum;
@@ -66,6 +83,12 @@ export function* buildPrefixSumGenerator(
       activeIndices: [index],
       prefixActiveIndices: [index],
       rangeSum: runningSum,
+      debugVariables: {
+        values,
+        prefix: prefixValues,
+        runningSum,
+        index,
+      },
     };
   }
 
@@ -78,6 +101,11 @@ export function* buildPrefixSumGenerator(
     prefixValuesSnapshot: [...prefixValues],
     activeIndices: [],
     prefixActiveIndices: [],
+    debugVariables: {
+      values,
+      prefix: prefixValues,
+      runningSum,
+    },
   };
 
   return prefixValues;
@@ -100,6 +128,12 @@ export function* prefixSumRangeQueryGenerator(
     prefixActiveIndices: left === 0 ? [right] : [left - 1, right],
     queryLeft: left,
     queryRight: right,
+    debugVariables: {
+      values,
+      prefix: prefixValues,
+      left,
+      right,
+    },
   };
 
   if (left === 0) {
@@ -117,6 +151,13 @@ export function* prefixSumRangeQueryGenerator(
       queryLeft: left,
       queryRight: right,
       rangeSum,
+      debugVariables: {
+        values,
+        prefix: prefixValues,
+        left,
+        right,
+        rangeSum,
+      },
     };
 
     return { rangeSum };
@@ -136,6 +177,13 @@ export function* prefixSumRangeQueryGenerator(
     queryLeft: left,
     queryRight: right,
     rangeSum,
+    debugVariables: {
+      values,
+      prefix: prefixValues,
+      left,
+      right,
+      rangeSum,
+    },
   };
 
   return { rangeSum };
