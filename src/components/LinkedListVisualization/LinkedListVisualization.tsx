@@ -1,9 +1,15 @@
 import { CSSProperties } from 'react';
-import { LinkedListNode } from '../../types';
+import { LinkedListNode, Step } from '../../types';
 
 interface LinkedListVisualizationProps {
   head: LinkedListNode | null;
   highlightedNodeId: string | null;
+  step?: Step | null;
+}
+
+function getPhaseClass(phase?: string) {
+  if (!phase) return '';
+  return `phase-${phase}`;
 }
 
 const containerStyle: CSSProperties = {
@@ -18,7 +24,7 @@ const emptyStyle: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   height: '300px',
-  color: '#888',
+  color: 'var(--text-secondary)',
   fontSize: '16px',
 };
 
@@ -31,6 +37,7 @@ const START_Y = 110;
 export default function LinkedListVisualization({
   head,
   highlightedNodeId,
+  step,
 }: LinkedListVisualizationProps) {
   if (head === null) {
     return (
@@ -52,7 +59,7 @@ export default function LinkedListVisualization({
   const height = 240;
 
   return (
-    <div style={{ ...containerStyle, overflowX: 'auto', justifyContent: 'flex-start' }}>
+    <div className={`spring-transition ${getPhaseClass(step?.phase)}`} style={{ ...containerStyle, overflowX: 'auto', justifyContent: 'flex-start' }}>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         style={{
@@ -72,11 +79,11 @@ export default function LinkedListVisualization({
             orient="auto"
             markerUnits="strokeWidth"
           >
-            <path d="M0,0 L0,6 L9,3 z" fill="#6c63ff" />
+            <path d="M0,0 L0,6 L9,3 z" fill="var(--accent)" />
           </marker>
         </defs>
 
-        <text x={START_X} y={54} fill="#334155" fontSize="16" fontWeight="600">
+        <text x={START_X} y={54} fill="var(--text-primary)" fontSize="16" fontWeight="600">
           Head
         </text>
         <line
@@ -84,7 +91,7 @@ export default function LinkedListVisualization({
           y1={62}
           x2={START_X + 10}
           y2={START_Y - 8}
-          stroke="#94a3b8"
+          stroke="var(--border)"
           strokeWidth="3"
           strokeDasharray="6 6"
         />
@@ -102,15 +109,15 @@ export default function LinkedListVisualization({
                 width={NODE_WIDTH}
                 height={NODE_HEIGHT}
                 rx="12"
-                fill={isHighlighted ? '#f59e0b' : '#2563eb'}
-                stroke={isHighlighted ? '#b45309' : '#1d4ed8'}
+                fill={isHighlighted ? 'var(--highlight-yellow)' : 'var(--accent)'}
+                stroke={isHighlighted ? 'var(--highlight-orange)' : 'var(--accent)'}
                 strokeWidth="3"
               />
               <text
                 x={x + NODE_WIDTH / 2}
                 y={START_Y + NODE_HEIGHT / 2 + 6}
                 textAnchor="middle"
-                fill="#ffffff"
+                fill="var(--bg-panel)"
                 fontSize="18"
                 fontWeight="700"
               >
@@ -124,7 +131,7 @@ export default function LinkedListVisualization({
                     y1={START_Y + NODE_HEIGHT / 2}
                     x2={nextX - 10}
                     y2={START_Y + NODE_HEIGHT / 2}
-                    stroke="#6c63ff"
+                    stroke="var(--accent)"
                     strokeWidth="4"
                     markerEnd="url(#list-arrow)"
                   />
@@ -132,7 +139,7 @@ export default function LinkedListVisualization({
                     x={x + NODE_WIDTH + NODE_GAP / 2}
                     y={START_Y + NODE_HEIGHT / 2 - 16}
                     textAnchor="middle"
-                    fill="#64748b"
+                    fill="var(--text-secondary)"
                     fontSize="12"
                     fontWeight="600"
                   >
@@ -143,7 +150,7 @@ export default function LinkedListVisualization({
                 <text
                   x={x + NODE_WIDTH + 18}
                   y={START_Y + NODE_HEIGHT / 2 + 5}
-                  fill="#64748b"
+                  fill="var(--text-secondary)"
                   fontSize="14"
                   fontWeight="600"
                 >
