@@ -20,6 +20,7 @@ import KadaneVisualization from './components/KadaneVisualization/KadaneVisualiz
 import RecursionVisualization from './components/RecursionVisualization/RecursionVisualization';
 import CodePanel from './components/CodePanel/CodePanel';
 import Controls from './components/Controls/Controls';
+import Narration from './components/Narration/Narration';
 import OperationInput from './components/Input/OperationInput';
 import {
   BFS_CODE,
@@ -556,26 +557,6 @@ function AppContent() {
                               : 'Recursion Visualization'}
           </h2>
           <div style={{ position: 'relative', flex: 1 }}>
-            {currentStep?.description && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  right: 0,
-                  zIndex: 10,
-                  padding: '6px 12px',
-                  backgroundColor: 'var(--bg-code)',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  maxWidth: '320px',
-                }}
-              >
-                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>Current: </span>
-                <span style={{ color: 'var(--text-primary)', fontFamily: 'Consolas, Monaco, Courier New, monospace' }}>
-                  {currentStep.description}
-                </span>
-              </div>
-            )}
             {activeStructure === 'array' ? (
               <ArrayVisualization data={arrayData} step={currentStep} />
             ) : activeStructure === 'stack' ? (
@@ -646,6 +627,10 @@ function AppContent() {
               language="javascript"
               variableValues={currentVariableValues}
             />
+          </div>
+
+          <div>
+            <Narration />
           </div>
 
           <div>
