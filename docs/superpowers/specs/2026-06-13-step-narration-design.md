@@ -52,7 +52,6 @@ A self-contained, presentational component placed in the right column immediatel
 - Otherwise render a single panel containing:
   - A small uppercase "Narration" label (matches the existing "Code" label style in the right column).
   - The current step's description as a single sentence of prose, rendered in `--text-primary` at the same font size as body text in the code panel.
-  - A small 1-based step counter on the right (e.g., `Step 4 of 12`), shown only when both `currentStep` and the total number of steps can be derived from the engine state. The counter is optional and may be deferred if it adds coupling.
 
 **Styling:**
 
@@ -120,8 +119,8 @@ Cases:
 
 1. Renders nothing when `currentStep` is `null`.
 2. Renders nothing when `currentStep.description` is `undefined`.
-3. Renders the description when `currentStep.description` is a non-empty string.
-4. Renders inside a panel with theme-aware CSS classes (assert presence of the class, not computed color, to avoid coupling to the theme system).
+3. Renders nothing when `currentStep.description` is an empty string.
+4. Renders the description text when `currentStep.description` is a non-empty string.
 
 No integration tests, no e2e tests, no snapshot tests. Visual polish is covered manually.
 
@@ -129,6 +128,7 @@ No integration tests, no e2e tests, no snapshot tests. Visual polish is covered 
 
 ## 7. Out of scope
 
+- A per-step counter (e.g., "Step 4 of 12"). The execution engine does not currently expose the step index or total, and adding it would require changes outside the scope of this UI refactor.
 - Rewriting existing generator descriptions to be more pedagogical or learner-friendly. The current descriptions are functional; polishing them is a follow-up.
 - Complexity analysis, big-O annotations, or per-step cost summaries.
 - Side-by-side algorithm comparison, history scrubbing, step replay, or bookmarks.
