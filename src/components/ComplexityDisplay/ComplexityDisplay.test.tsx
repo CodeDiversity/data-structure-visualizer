@@ -20,6 +20,6 @@ describe('ComplexityDisplay', () => {
 
   it('renders both fields with the separator', () => {
     render(<ComplexityDisplay complexity={{ time: 'O(log n)', space: 'O(1)' }} />);
-    expect(screen.getByText('Time: O(log n)  |  Space: O(1)')).toBeInTheDocument();
+    expect(screen.getByText('Time: O(log n) | Space: O(1)')).toBeInTheDocument();
   });
 });
