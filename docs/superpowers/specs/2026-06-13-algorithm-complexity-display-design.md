@@ -7,7 +7,7 @@
 
 ## Overview
 
-Add a small complexity line ("Time: O(n log n) | Space: O(n)") that appears under the "CODE" heading inside the right column. One complexity entry per `StructureKind` (18 entries), each showing the typical/average time and space Big-O. Pure UI refactor — no engine, generator, or state changes.
+Add a small complexity line ("Time: O(n log n) | Space: O(n)") that appears under the "CODE" heading inside the right column. One complexity entry per `StructureKind` (17 entries), each showing the typical/average time and space Big-O. Pure UI refactor — no engine, generator, or state changes.
 
 ---
 
@@ -25,7 +25,7 @@ Three new things, one changed file.
 
 ### 1. `src/algorithms/complexity.ts` (new)
 
-A single `Record<StructureKind, ComplexityEntry>` covering all 18 entries. Each entry is `{ time: string; space: string }` with the Big-O string (e.g. `"O(n log n)"`).
+A single `Record<StructureKind, ComplexityEntry>` covering all 17 entries. Each entry is `{ time: string; space: string }` with the Big-O string (e.g. `"O(n log n)"`).
 
 ```ts
 import type { StructureKind } from '../types';
@@ -126,7 +126,7 @@ The lookup is `O(1)`. `currentStructure` is already in scope as the currently-se
 
 ## Authoring model
 
-- **Granularity:** one entry per `StructureKind` (18 total). We deliberately do *not* split by operation, even though BST-insert and BST-search could in principle differ. The user approved this simplification for the first version.
+- **Granularity:** one entry per `StructureKind` (17 total). We deliberately do *not* split by operation, even though BST-insert and BST-search could in principle differ. The user approved this simplification for the first version.
 - **Typical vs. worst case:** we show the typical/average case for each. BST shows `O(log n)` (not `O(n)` worst case), quick-sort shows `O(n log n)` (not `O(n²)` worst case). This is the case students learn first; future iterations could expose both via tooltip.
 - **String format:** plain Big-O strings in monospace-feeling layout (`"O(log n)"`, `"O(V + E)"`, `"O(n log n)"`). The display is a label, not parsed code, so we use the conventions that match textbooks.
 
@@ -173,7 +173,7 @@ End-to-end manual check:
 1. `npm run build` — must compile clean
 2. `npm test` — all 4 ComplexityDisplay tests pass (plus the 4 existing Narration tests, total 8)
 3. `npm run dev` — open the app
-4. For each of the 18 structures, confirm the complexity line appears under the "Code" heading with the correct values from the table above
+4. For each of the 17 structures, confirm the complexity line appears under the "Code" heading with the correct values from the table above
 5. Toggle the theme — the line should follow `var(--text-secondary)` in both modes
 
 ---

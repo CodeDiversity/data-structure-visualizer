@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add a small "Time: O(n log n) | Space: O(n)" line under the "Code" heading in the right column, with one entry per `StructureKind` (18 total).
+**Goal:** Add a small "Time: O(n log n) | Space: O(n)" line under the "Code" heading in the right column, with one entry per `StructureKind` (17 total).
 
 **Architecture:** Pure UI refactor. One constants file (`src/algorithms/complexity.ts`) with a `Record<StructureKind, { time; space }>`, one presentational component (`src/components/ComplexityDisplay/ComplexityDisplay.tsx`) that takes the entry as a prop and returns `null` when missing, and a one-line wiring change in `App.tsx`. TypeScript's `Record<StructureKind, ...>` enforces completeness of the constants map at compile time.
 
@@ -14,7 +14,7 @@
 
 | File | Action | Responsibility |
 |---|---|---|
-| `src/algorithms/complexity.ts` | Create | `Record<StructureKind, ComplexityEntry>` covering all 18 structures. The single source of truth. |
+| `src/algorithms/complexity.ts` | Create | `Record<StructureKind, ComplexityEntry>` covering all 17 structures. The single source of truth. |
 | `src/components/ComplexityDisplay/ComplexityDisplay.tsx` | Create | Pure presentational component. Takes `complexity?: ComplexityEntry`, renders `Time: O(...)  \|  Space: O(...)`, returns `null` when prop is `undefined`. |
 | `src/components/ComplexityDisplay/ComplexityDisplay.test.tsx` | Create | 4 unit tests covering the render/nothing-render contract. |
 | `src/App.tsx` | Modify | Add two imports, add one JSX line in the right column above `<CodePanel>`. |
@@ -318,7 +318,7 @@ Open the app in a browser. The default structure is `bst` (line 158 of `src/App.
 
 - [ ] **Step 3: Verify each structure**
 
-Click through the structure selector for all 18 structures. For each one, confirm the complexity line matches the table in `src/algorithms/complexity.ts`:
+Click through the structure selector for all 17 structures. For each one, confirm the complexity line matches the table in `src/algorithms/complexity.ts`:
 - `array` → `Time: O(n)  |  Space: O(1)`
 - `stack` → `Time: O(1)  |  Space: O(n)`
 - `queue` → `Time: O(1)  |  Space: O(n)`
@@ -356,11 +356,11 @@ If verification revealed a problem, fix it in a follow-up commit. If everything 
 ## Self-Review
 
 **Spec coverage:**
-- Constants file with all 18 entries → Task 1 ✓
+- Constants file with all 17 entries → Task 1 ✓
 - Presentational component with optional prop and null return → Task 3 ✓
 - 4 unit tests covering render/nothing-render contract → Task 2 ✓
 - App.tsx wiring (imports + JSX) → Task 4 ✓
-- Manual end-to-end verification for all 18 structures and both themes → Task 5 ✓
+- Manual end-to-end verification for all 17 structures and both themes → Task 5 ✓
 - TypeScript exhaustiveness check for the constants map → Task 1 Step 2 ✓
 
 **Placeholder scan:** no TBDs, TODOs, or "similar to" references. Every step has the actual code or command an engineer needs.
