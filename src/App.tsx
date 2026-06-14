@@ -21,7 +21,9 @@ import RecursionVisualization from './components/RecursionVisualization/Recursio
 import CodePanel from './components/CodePanel/CodePanel';
 import Controls from './components/Controls/Controls';
 import Narration from './components/Narration/Narration';
+import ComplexityDisplay from './components/ComplexityDisplay/ComplexityDisplay';
 import OperationInput from './components/Input/OperationInput';
+import { COMPLEXITY } from './algorithms/complexity';
 import {
   BFS_CODE,
   DELETE_CODE,
@@ -621,6 +623,7 @@ function AppContent() {
             >
               Code
             </h2>
+            <ComplexityDisplay complexity={COMPLEXITY[activeStructure]} />
             <CodePanel
               code={currentCode}
               currentLine={currentLine}
